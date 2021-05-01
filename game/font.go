@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
+	"image"
 	"image/color"
 	"log"
 )
@@ -31,6 +32,10 @@ func (f *FontText) LoadFont(filename string, size int) {
 		DPI:     dpi,
 		Hinting: font.HintingFull,
 	})
+}
+
+func (f *FontText) BoundString(str string) image.Rectangle {
+	return text.BoundString(f.fontface, str)
 }
 
 func (f *FontText) DrawTextInBox(dst *ebiten.Image, str string, x, y float64) float64 {

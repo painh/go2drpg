@@ -5,6 +5,7 @@ import (
 	"github.com/fardog/tmx"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/painh/go2drpg/assetmanager"
 	"github.com/painh/go2drpg/game/scripts"
 	"log"
@@ -28,6 +29,11 @@ type Game struct {
 
 func (g *Game) Update() error {
 	InputInstance.Update()
+	GameLogInstance.Update()
+
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		GameLogInstance.Add("1")
+	}
 
 	ok := g.FlowControllerInstance.WaitForEventLoop("")
 	if !ok {
@@ -50,6 +56,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.gameObjectManager.Draw(screen)
 
 	g.TextDialogInstance.Draw(screen)
+
+	GameLogInstance.Draw(screen)
 
 	fps := fmt.Sprintf("%f", ebiten.CurrentFPS())
 	defaultFontInstance.DrawTextInBox(screen, "hello : "+fps, 0, 0)
@@ -150,6 +158,13 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 
 	GameInstance.gameObjectManager.Width = float64(m.Width) * TILE_SIZE
 	GameInstance.gameObjectManager.Height = float64(m.Height) * TILE_SIZE
+
+	GameLogInstance.Add("1")
+	GameLogInstance.Add("2")
+	GameLogInstance.Add("3")
+	GameLogInstance.Add("4")
+	GameLogInstance.Add("5")
+
 	return &GameInstance
 }
 

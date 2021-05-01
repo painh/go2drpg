@@ -13,6 +13,7 @@ type Config struct {
 	Title                  string `json:title`
 	Font_path              string `json:font_path`
 	Font_size              int    `json:font_size`
+	Log_lines              int    `json:log_lines`
 }
 
 var ConfigInstance = Config{}
