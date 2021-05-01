@@ -21,17 +21,17 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	DoubleClickInstance.Update()
+	InputInstance.Update()
 
 	ok := g.FlowControllerInstance.WaitForEventLoop("")
 	if !ok {
-		g.gameObjectManager.Update(DoubleClickInstance.x, DoubleClickInstance.y)
+		g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
 		//fmt.Println("event loop가 죽었슴다")
 	}
 
 	g.TextDialogInstance.Update()
 
-	dbClick := DoubleClickInstance.DBClick()
+	dbClick := InputInstance.DBClick()
 
 	if dbClick {
 		fmt.Println(dbClick)

@@ -14,7 +14,6 @@ type Input struct {
 	LastY         int
 	LastClickTS   int64
 	DoubleClicked bool
-	prevPressed   bool
 	pressed       bool
 	clicked       bool
 	firstclick    bool
@@ -22,7 +21,7 @@ type Input struct {
 	prevY         int
 }
 
-var DoubleClickInstance = Input{}
+var InputInstance = Input{}
 
 func (d *Input) Update() {
 	d.pressed = false
@@ -38,9 +37,8 @@ func (d *Input) Update() {
 	} else {
 		fmt.Println(ids)
 		d.pressed = true
-		if d.prevPressed == false {
-			d.clicked = true
-		}
+
+		d.clicked = len(inpututil.JustPressedTouchIDs()) > 0
 
 		d.prevX = d.x
 		d.prevY = d.y
@@ -52,8 +50,6 @@ func (d *Input) Update() {
 			d.prevY = d.y
 		}
 	}
-
-	d.prevPressed = d.pressed
 
 	d.DoubleClicked = false
 	if !d.clicked {

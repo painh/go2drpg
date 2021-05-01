@@ -62,16 +62,16 @@ func (g *gameObjectManager) selectProcess(x, y float64) bool {
 func (g *gameObjectManager) Update(x, y int) {
 	objFound := false
 
-	if DoubleClickInstance.LBtnPressed() {
+	if InputInstance.LBtnPressed() {
 		if !objFound {
-			dx := float64(DoubleClickInstance.prevX - x)
-			dy := float64(DoubleClickInstance.prevY - y)
+			dx := float64(InputInstance.prevX - x)
+			dy := float64(InputInstance.prevY - y)
 			CameraInstance.SetXY(CameraInstance.x+dx, CameraInstance.y+dy)
 			g.Refresh()
 		}
 	}
 
-	if DoubleClickInstance.RBtnClicked() {
+	if InputInstance.RBtnClicked() {
 		worldX := float64(int(x+int(CameraInstance.x)) / int(TILE_SIZE))
 		worldY := float64(int(y+int(CameraInstance.y)) / int(TILE_SIZE))
 
