@@ -5,7 +5,6 @@ import (
 	"github.com/fardog/tmx"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/painh/go2drpg/assetmanager"
 	"github.com/painh/go2drpg/game/scripts"
 	"log"
@@ -22,12 +21,11 @@ type Game struct {
 }
 
 func (g *Game) Update() error {
-	x, y := ebiten.CursorPosition()
-	DoubleClickInstance.Update(x, y, inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft))
+	DoubleClickInstance.Update()
 
 	ok := g.FlowControllerInstance.WaitForEventLoop("")
 	if !ok {
-		g.gameObjectManager.Update(x, y)
+		g.gameObjectManager.Update(DoubleClickInstance.x, DoubleClickInstance.y)
 		//fmt.Println("event loop가 죽었슴다")
 	}
 

@@ -63,7 +63,7 @@ func (g *gameObjectManager) selectProcess(x, y float64) bool {
 func (g *gameObjectManager) Update(x, y int) {
 	objFound := false
 
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) {
+	if DoubleClickInstance.LBtnPressed() {
 		if !objFound {
 			dx := g.prevClickX - float64(x)
 			dy := g.prevClickY - float64(y)
@@ -72,7 +72,7 @@ func (g *gameObjectManager) Update(x, y int) {
 		}
 	}
 
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) || DoubleClickInstance.DBClick() {
+	if DoubleClickInstance.RBtnClicked() {
 		worldX := float64(int(x+int(CameraInstance.x)) / int(TILE_SIZE))
 		worldY := float64(int(y+int(CameraInstance.y)) / int(TILE_SIZE))
 
