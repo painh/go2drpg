@@ -1,9 +1,10 @@
 package game
 
 import (
+	"fmt"
 	"github.com/beefsack/go-astar"
+	"log"
 )
-import "math"
 
 type TilePos struct {
 	x float64
@@ -11,7 +12,24 @@ type TilePos struct {
 }
 
 type TileManager struct {
-	dict map[float64]map[float64]*TilePos
+	dict           map[float64]map[float64]*TilePos
+	x1, y1, x2, y2 float64
+}
+
+func (t *TileManager) FindTo(x1, y1, x2, y2 float64) ([]astar.Pather, float64, bool) {
+	t.x1 = x1
+	t.y1 = y1
+	t.x2 = x2
+	t.y2 = y2
+
+	from := tileManagerInstance.Get(x1, y1)
+	to := tileManagerInstance.Get(x2, y2)
+	path, distance, found := astar.Path(from, to)
+	fmt.Println(path)
+	fmt.Println(distance)
+	fmt.Println(found)
+
+	return path, distance, found
 }
 
 func (t *TileManager) Init() {
@@ -35,20 +53,22 @@ func (t *TileManager) Get(x, y float64) *TilePos {
 	return t.dict[x][y]
 }
 
-var tileManager TileManager = TileManager{}
+func (t *TileManager) IsToPos(x, y float64) bool {
+	if t.x2 == x && t.y2 == y {
+		return true
+	}
 
-func init() {
-	tileManager.Init()
+	return false
 }
 
-var TILE_SIZE float64 = 32
+var tileManagerInstance TileManager = TileManager{}
 
-const SPRITE_PATTERN = float64(16)
-
-var SCALE float64 = TILE_SIZE / SPRITE_PATTERN
+func init() {
+	tileManagerInstance.Init()
+}
 
 func (t *TilePos) ManhattanDistance(to *TilePos) float64 {
-	return math.Abs(t.x-to.x) + math.Abs(t.y-to.y)
+	return ManhattanDistance(t.x, t.y, to.x, to.y)
 }
 
 func (t *TilePos) PathNeighbors() []astar.Pather {
@@ -68,8 +88,20 @@ func (t *TilePos) PathNeighbors() []astar.Pather {
 	}
 
 	for _, v := range list {
+		distnace := ManhattanDistance(tileManagerInstance.x1, tileManagerInstance.y1, v[0], v[1])
+		if distnace > 100 {
+			log.Println("too far", tileManagerInstance.x1, tileManagerInstance.y1, v[0], v[1], distnace)
+			continue
+		}
+
+		if tileManagerInstance.IsToPos(v[0], v[1]) { //목적지는 언제나 갈수 있음.
+			tile := tileManagerInstance.Get(v[0], v[1])
+			ret = append(ret, tile)
+			continue
+		}
+
 		if !GameInstance.gameObjectManager.CheckGameObjectPosition(v[0], v[1]) {
-			tile := tileManager.Get(v[0], v[1])
+			tile := tileManagerInstance.Get(v[0], v[1])
 			ret = append(ret, tile)
 		}
 	}

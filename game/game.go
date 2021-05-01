@@ -12,6 +12,12 @@ import (
 	"strconv"
 )
 
+var TILE_SIZE float64 = 32
+
+const SPRITE_PATTERN = float64(16)
+
+var SCALE float64 = TILE_SIZE / SPRITE_PATTERN
+
 type Game struct {
 	screenWidth            int
 	screenHeight           int

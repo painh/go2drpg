@@ -1,8 +1,6 @@
 package game
 
 import (
-	"fmt"
-	"github.com/beefsack/go-astar"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
 )
@@ -20,19 +18,14 @@ func (g *GameObject) Init() {
 }
 
 func (g *GameObject) FindTo(x, y float64) {
-	from := tileManager.Get(g.x, g.y)
-	to := tileManager.Get(x, y)
-	path, distance, found := astar.Path(from, to)
-	fmt.Println(path)
-	fmt.Println(distance)
-	fmt.Println(found)
+	path, _, found := tileManagerInstance.FindTo(g.x, g.y, x, y)
 
 	if !found {
 		return
 	}
 
 	g.movePosList = []*TilePos{}
-	for i := len(path) - 1; i >= 0; i-- {
+	for i := len(path) - 2; i >= 0; i-- { // 첫위치는 제외함. -2.
 		v := path[i]
 		g.movePosList = append(g.movePosList, v.(*TilePos))
 	}
@@ -55,6 +48,10 @@ func (g *GameObject) Update() {
 	if g.cdmanager.IsCooldownOver("move", 500) {
 		g.cdmanager.ActiveCooldown("move")
 		tile := g.movePosList[0]
+		if GameInstance.gameObjectManager.CheckGameObjectPosition(tile.x, tile.y) {
+			return
+		}
+
 		g.movePosList = g.movePosList[1:]
 		g.GameSprite.SetXY(tile.x, tile.y)
 	}
