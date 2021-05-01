@@ -16,7 +16,10 @@ type Input struct {
 	DoubleClicked bool
 	prevPressed   bool
 	pressed       bool
-	clicked    bool
+	clicked       bool
+	firstclick    bool
+	prevX         int
+	prevY         int
 }
 
 var DoubleClickInstance = Input{}
@@ -27,6 +30,8 @@ func (d *Input) Update() {
 
 	ids := ebiten.TouchIDs()
 	if ids == nil {
+		d.prevX = d.x
+		d.prevY = d.y
 		d.x, d.y = ebiten.CursorPosition()
 		d.pressed = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 		d.clicked = inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
@@ -35,7 +40,16 @@ func (d *Input) Update() {
 		d.pressed = true
 		if d.prevPressed == false {
 			d.clicked = true
-			d.x, d.y = ebiten.TouchPosition(0)
+		}
+
+		d.prevX = d.x
+		d.prevY = d.y
+
+		d.x, d.y = ebiten.TouchPosition(0)
+
+		if d.clicked {
+			d.prevX = d.x
+			d.prevY = d.y
 		}
 	}
 

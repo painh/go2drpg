@@ -9,10 +9,9 @@ import (
 )
 
 type gameObjectManager struct {
-	Width, Height          float64
-	prevClickX, prevClickY float64
-	tiles                  []*GameSprite
-	objects                []*GameObject
+	Width, Height float64
+	tiles         []*GameSprite
+	objects       []*GameObject
 }
 
 func (g *gameObjectManager) Draw(screen *ebiten.Image) {
@@ -65,8 +64,8 @@ func (g *gameObjectManager) Update(x, y int) {
 
 	if DoubleClickInstance.LBtnPressed() {
 		if !objFound {
-			dx := g.prevClickX - float64(x)
-			dy := g.prevClickY - float64(y)
+			dx := float64(DoubleClickInstance.prevX - x)
+			dy := float64(DoubleClickInstance.prevY - y)
 			CameraInstance.SetXY(CameraInstance.x+dx, CameraInstance.y+dy)
 			g.Refresh()
 		}
@@ -97,9 +96,6 @@ func (g *gameObjectManager) Update(x, y int) {
 	for _, e := range g.objects {
 		e.Update()
 	}
-
-	g.prevClickX = float64(x)
-	g.prevClickY = float64(y)
 }
 
 func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, name string) {
