@@ -1,0 +1,9 @@
+{
+  "window_width": 800,
+  "window_height": 600,
+  "title": "Go 2D RPG",
+  "doubclick_pixel_margin": 1,
+  "doubclick_ts_margin": 200,
+  "font_path": "assets/SCDream5.otf",
+  "font_size": 24
+}
