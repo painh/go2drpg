@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image"
 )
@@ -50,7 +51,10 @@ func (g *GameLog) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (g *GameLog) Add(text string) {
+func (g *GameLog) Add(a ...interface{}) {
+
+	text := fmt.Sprint(a...)
+
 	l := GameLogElement{text: text, createdTs: makeTimestamp()}
 	l.Set(text)
 
@@ -59,4 +63,6 @@ func (g *GameLog) Add(text string) {
 	if len(g.lines) > ConfigInstance.Log_lines {
 		g.lines = g.lines[:len(g.lines)-1]
 	}
+
+	fmt.Println(text)
 }

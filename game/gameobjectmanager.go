@@ -78,6 +78,7 @@ func (g *gameObjectManager) Update(x, y int) {
 		for _, e := range g.objects {
 			if e.selected {
 				e.FindTo(worldX, worldY)
+				GameLogInstance.Add(worldX, worldY)
 			}
 		}
 
