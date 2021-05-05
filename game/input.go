@@ -43,7 +43,7 @@ func (d *Input) Update() {
 		d.prevX = d.x
 		d.prevY = d.y
 
-		d.x, d.y = ebiten.TouchPosition(0)
+		d.x, d.y = ebiten.TouchPosition(ids[0])
 
 		if d.clicked {
 			d.prevX = d.x
