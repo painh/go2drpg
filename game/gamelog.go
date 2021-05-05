@@ -19,12 +19,16 @@ func (g *GameLogElement) Set(text string) {
 	newText := ""
 	resultText := ""
 	linesCnt := 1
+	y := 0
 	for _, v := range text {
 		prevText := newText
 		newText += string(v)
 		rect := defaultFontInstance.BoundString(newText)
 		width := rect.Dx()
 		if width >= ConfigInstance.LogWidth {
+			rect := defaultFontInstance.BoundString(prevText)
+			y += rect.Dy() + ConfigInstance.LineSpacing
+
 			resultText = prevText + "\n"
 			prevText = newText
 			newText = string(v)
@@ -32,31 +36,20 @@ func (g *GameLogElement) Set(text string) {
 		}
 	}
 	resultText += newText
+	rect := defaultFontInstance.BoundString(newText)
+	y += rect.Dy() + ConfigInstance.LineSpacing
+	y += ConfigInstance.LineSpacing
 
 	strs := strings.Split(resultText, "\n")
-	y := 0
-	const margin = 5
-	for _, v := range strs {
-		rect := defaultFontInstance.BoundString(v)
-		y += rect.Dy() + margin
-	}
-	y += margin
 
-	//rect := defaultFontInstance.BoundString(resultText)
-
-	//g.lineHeight = int(rect.Dy())
-	//g.imageBuf = ebiten.NewImage(ConfigInstance.LogWidth, int(g.lineHeight)+1)
 	g.lineHeight = y
 	g.imageBuf = ebiten.NewImage(ConfigInstance.LogWidth, g.lineHeight)
-	//DrawRect(g.imageBuf, 0, 0, float64(ConfigInstance.LogWidth), float64(g.lineHeight), color.White)
-	//defaultFontInstance.Draw(g.imageBuf, resultText, int(0), int(rect.Min.Y))
 
-	strs = strings.Split(resultText, "\n")
 	y = 0
 	for _, v := range strs {
 		rect := defaultFontInstance.BoundString(v)
-		y += rect.Dy() + margin
-		defaultFontInstance.Draw(g.imageBuf, v, int(0), y)
+		y += rect.Dy() + ConfigInstance.LineSpacing
+		defaultFontInstance.Draw(g.imageBuf, v, 0, y)
 	}
 
 }

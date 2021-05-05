@@ -22,6 +22,7 @@ type Config struct {
 	LogY                   int    `json:"log_y"`
 	LogWidth               int    `json:"log_width"`
 	LogHeight              int    `json:"log_height"`
+	LineSpacing            int    `json:"line_spacing"`
 }
 
 var ConfigInstance = Config{}

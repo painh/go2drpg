@@ -14,5 +14,6 @@
   "log_x": 400,
   "log_y": 0,
   "log_width": 400,
-  "log_height": 600
+  "log_height": 600,
+  "line_spacing" : 5
 }
