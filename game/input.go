@@ -57,11 +57,11 @@ func (d *Input) Update() {
 	}
 
 	now := makeTimestamp()
-	fmt.Println(now-d.LastClickTS, ConfigInstance.Doubclick_ts_margin)
+	fmt.Println(now-d.LastClickTS, ConfigInstance.DoubleClickTsMargin)
 
-	if math.Abs(float64(d.x-d.LastX)) < float64(ConfigInstance.Doubclick_pixel_margin) &&
-		math.Abs(float64(d.y-d.LastY)) < float64(ConfigInstance.Doubclick_pixel_margin) &&
-		now-d.LastClickTS < ConfigInstance.Doubclick_ts_margin {
+	if math.Abs(float64(d.x-d.LastX)) < float64(ConfigInstance.DoubleClickPixelMargin) &&
+		math.Abs(float64(d.y-d.LastY)) < float64(ConfigInstance.DoubleClickPixelMargin) &&
+		now-d.LastClickTS < ConfigInstance.DoubleClickTsMargin {
 		d.DoubleClicked = true
 	}
 

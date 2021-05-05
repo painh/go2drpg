@@ -2,9 +2,17 @@
   "window_width": 800,
   "window_height": 600,
   "title": "Go 2D RPG",
-  "doubclick_pixel_margin": 16,
-  "doubclick_ts_margin": 200,
+  "double_click_pixel_margin": 16,
+  "double_click_ts_margin": 200,
   "font_path": "assets/SCDream5.otf",
   "font_size": 24,
-  "log_lines": 20
+  "log_lines": 20,
+  "map_x": 0,
+  "map_y": 0,
+  "map_width": 400,
+  "map_height": 600,
+  "log_x": 400,
+  "log_y": 0,
+  "log_width": 400,
+  "log_height": 600
 }

@@ -6,14 +6,22 @@ import (
 )
 
 type Config struct {
-	Window_width           int    `json:window_width`
-	Window_height          int    `json:window_height`
-	Doubclick_pixel_margin int    `json:doubclick_pixel_margin`
-	Doubclick_ts_margin    int64  `json:doubclick_ts_margin`
-	Title                  string `json:title`
-	Font_path              string `json:font_path`
-	Font_size              int    `json:font_size`
-	Log_lines              int    `json:log_lines`
+	WindowWidth            int    `json:"window_width"`
+	WindowHeight           int    `json:"window_height"`
+	DoubleClickPixelMargin int    `json:"double_click_pixel_margin"`
+	DoubleClickTsMargin    int64  `json:"double_click_ts_margin"`
+	Title                  string `json:"title"`
+	FontPath               string `json:"font_path"`
+	FontSize               int    `json:"font_size"`
+	LogLines               int    `json:"log_lines"`
+	MapX                   int    `json:"map_x"`
+	MapY                   int    `json:"map_y"`
+	MapWidth               int    `json:"map_width"`
+	MapHeight              int    `json:"map_height"`
+	LogX                   int    `json:"log_x"`
+	LogY                   int    `json:"log_y"`
+	LogWidth               int    `json:"log_width"`
+	LogHeight              int    `json:"log_height"`
 }
 
 var ConfigInstance = Config{}

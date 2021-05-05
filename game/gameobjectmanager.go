@@ -61,6 +61,12 @@ func (g *gameObjectManager) selectProcess(x, y float64) bool {
 
 func (g *gameObjectManager) Update(x, y int) {
 	objFound := false
+	inbound := false
+
+	if x >= ConfigInstance.MapX && y >= ConfigInstance.MapY &&
+			x < ConfigInstance.MapWidth && y < ConfigInstance.MapHeight {
+		inbound = true
+	}
 
 	if InputInstance.LBtnPressed() {
 		if !objFound {
@@ -71,7 +77,7 @@ func (g *gameObjectManager) Update(x, y int) {
 		}
 	}
 
-	if InputInstance.RBtnClicked() {
+	if inbound && InputInstance.RBtnClicked() {
 		worldX := float64(int(x+int(CameraInstance.x)) / int(TILE_SIZE))
 		worldY := float64(int(y+int(CameraInstance.y)) / int(TILE_SIZE))
 

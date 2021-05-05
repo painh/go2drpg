@@ -15,6 +15,11 @@ type FontText struct {
 	fontface font.Face
 }
 
+func (f *FontText) FontHeight() int {
+	b, _, _ := f.fontface.GlyphBounds('M')
+	return (b.Max.Y - b.Min.Y).Ceil()
+}
+
 func (f *FontText) LoadFont(filename string, size int) {
 	dat, err := ReadFile(filename)
 	if err != nil {
@@ -36,6 +41,10 @@ func (f *FontText) LoadFont(filename string, size int) {
 
 func (f *FontText) BoundString(str string) image.Rectangle {
 	return text.BoundString(f.fontface, str)
+}
+
+func (f *FontText) Draw(dst *ebiten.Image, str string, x, y int) {
+	text.Draw(dst, str, f.fontface, int(x), y, color.White)
 }
 
 func (f *FontText) DrawTextInBox(dst *ebiten.Image, str string, x, y float64) float64 {

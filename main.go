@@ -21,15 +21,10 @@ import (
 	"log"
 )
 
-const (
-	screenWidth  = 800
-	screenHeight = 600
-)
-
 func main() {
 	game.ConfigInstance.Load("config.json")
 
-	g := game.NewGame(game.ConfigInstance.Window_width, game.ConfigInstance.Window_height)
+	g := game.NewGame(game.ConfigInstance.WindowWidth, game.ConfigInstance.WindowHeight)
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}

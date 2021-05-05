@@ -23,8 +23,11 @@ type Game struct {
 	screenWidth            int
 	screenHeight           int
 	gameObjectManager      gameObjectManager
-	TextDialogInstance     TextDialog
 	FlowControllerInstance FlowController
+	mapBuf                 *ebiten.Image
+	mapBufOp               *ebiten.DrawImageOptions
+	logBuf                 *ebiten.Image
+	logBufOp               *ebiten.DrawImageOptions
 }
 
 func (g *Game) Update() error {
@@ -41,8 +44,6 @@ func (g *Game) Update() error {
 		//fmt.Println("event loop가 죽었슴다")
 	}
 
-	g.TextDialogInstance.Update()
-
 	dbClick := InputInstance.DBClick()
 
 	if dbClick {
@@ -53,11 +54,17 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.gameObjectManager.Draw(screen)
+	g.mapBuf.Clear()
+	g.logBuf.Clear()
 
-	g.TextDialogInstance.Draw(screen)
+	g.gameObjectManager.Draw(g.mapBuf)
 
-	GameLogInstance.Draw(screen)
+	//g.TextDialogInstance.Draw(screen)
+
+	GameLogInstance.Draw(g.logBuf)
+
+	screen.DrawImage(g.mapBuf, g.mapBufOp)
+	screen.DrawImage(g.logBuf, g.logBufOp)
 
 	fps := fmt.Sprintf("%f", ebiten.CurrentFPS())
 	defaultFontInstance.DrawTextInBox(screen, "hello : "+fps, 0, 0)
@@ -73,29 +80,14 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 
 	GameInstance = Game{}
-	GameInstance.screenHeight = screenHeight
-	GameInstance.screenWidth = screenWidth
-	GameInstance.gameObjectManager = gameObjectManager{}
-	GameInstance.TextDialogInstance = TextDialog{x: float64(screenWidth/2 - screenWidth/4),
-		y: float64(screenHeight/2 - screenHeight/4)}
-	GameInstance.TextDialogInstance.SetText(`
-안녕
-나의 이름은 김개똥
-1
-2
-3
-4
-`)
-
-	GameInstance.FlowControllerInstance = FlowController{}
-	GameInstance.FlowControllerInstance.Init()
+	GameInstance.Init(screenWidth, screenHeight)
 
 	scripts.Init(&GameInstance)
 
 	assetmanager.Load("assets/16x16_Jerom_CC-BY-SA-3.0.png", "base")
 	assetmanager.MakePatternImages("base", int(SPRITE_PATTERN), int(SPRITE_PATTERN))
 
-	defaultFontInstance.LoadFont(ConfigInstance.Font_path, ConfigInstance.Font_size)
+	defaultFontInstance.LoadFont(ConfigInstance.FontPath, ConfigInstance.FontSize)
 
 	file, err := ebitenutil.OpenFile((path.Join(".", "assets/tile.tmx")))
 	if err != nil {
@@ -159,13 +151,31 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 	GameInstance.gameObjectManager.Width = float64(m.Width) * TILE_SIZE
 	GameInstance.gameObjectManager.Height = float64(m.Height) * TILE_SIZE
 
-	GameLogInstance.Add("1")
+	GameLogInstance.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
 	GameLogInstance.Add("2")
 	GameLogInstance.Add("3")
 	GameLogInstance.Add("4")
 	GameLogInstance.Add("5")
 
 	return &GameInstance
+}
+
+func (g *Game) Init(screenWidth, screenHeight int) {
+	g.screenHeight = screenHeight
+	g.screenWidth = screenWidth
+
+	g.gameObjectManager = gameObjectManager{}
+
+	g.mapBuf = ebiten.NewImage(ConfigInstance.MapWidth, ConfigInstance.MapHeight)
+	g.mapBufOp = &ebiten.DrawImageOptions{}
+	g.mapBufOp.GeoM.Translate(float64(ConfigInstance.MapX), float64(ConfigInstance.MapY))
+
+	g.logBuf = ebiten.NewImage(ConfigInstance.LogWidth, ConfigInstance.LogHeight)
+	g.logBufOp = &ebiten.DrawImageOptions{}
+	g.logBufOp.GeoM.Translate(float64(ConfigInstance.LogX), float64(ConfigInstance.LogY))
+
+	g.FlowControllerInstance = FlowController{}
+	g.FlowControllerInstance.Init()
 }
 
 func (g *Game) StartEvent() {
@@ -181,5 +191,5 @@ func (g *Game) EndEvent() {
 }
 
 func (g *Game) SetText(t string) {
-	g.TextDialogInstance.SetText(t)
+	GameLogInstance.Add(t)
 }
