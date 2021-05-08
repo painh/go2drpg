@@ -1,8 +1,7 @@
 package scripts
 
 import (
-	"fmt"
-	"time"
+	"strconv"
 )
 
 var ScriptFunc = make(map[string]func())
@@ -10,19 +9,29 @@ var ScriptFunc = make(map[string]func())
 type IEventProcessor interface {
 	StartEvent()
 	EndEvent()
-	WaitForMainLoop()
+	ShiftFlowToMainLoop()
 	SetText(t string)
+	TextSelect(t []string)
+	GetLastSelectedIndex() int
+	WaitOneFrameOn()
 }
 
 var eventProcessor IEventProcessor
 
 //func waitmain() {
-//	eventProcessor.WaitForMainLoop()
+//	eventProcessor.ShiftFlowToMainLoop()
 //}
 
 func textwait(t string) {
 	(eventProcessor).SetText(t)
-	(eventProcessor).WaitForMainLoop()
+	(eventProcessor).WaitOneFrameOn()
+	(eventProcessor).ShiftFlowToMainLoop()
+}
+
+func textSelect(t []string) int {
+	(eventProcessor).TextSelect(t)
+	(eventProcessor).ShiftFlowToMainLoop()
+	return (eventProcessor).GetLastSelectedIndex()
 }
 
 func StartEvent(eventname string) {
@@ -36,14 +45,14 @@ func StartEvent(eventname string) {
 func Init(ie IEventProcessor) {
 	eventProcessor = ie
 	ScriptFunc["slime"] = func() {
-		fmt.Println("start")
 		textwait("헬로우")
-		fmt.Println("1")
-		time.Sleep(time.Second * 1)
 		textwait("헬로우2222222")
-		fmt.Println("2")
-		time.Sleep(time.Second * 1)
 		textwait("헬로우333333")
-		fmt.Println("3")
+		i := textSelect(
+			[]string{
+				"1. 안녕", "2.하하하",
+			})
+
+		textwait("너의 선택 : " + strconv.Itoa(i))
 	}
 }

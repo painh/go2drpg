@@ -5,7 +5,6 @@ import (
 	"github.com/fardog/tmx"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/painh/go2drpg/assetmanager"
 	"github.com/painh/go2drpg/game/scripts"
 	"log"
@@ -28,21 +27,36 @@ type Game struct {
 	mapBufOp               *ebiten.DrawImageOptions
 	logBuf                 *ebiten.Image
 	logBufOp               *ebiten.DrawImageOptions
+
+	frameCnt     int64
+	waitOneFrame int64
+}
+
+func (g *Game) WaitOneFrameOn() {
+	g.waitOneFrame = g.frameCnt
+}
+
+func (g *Game) WaitOneFrame() {
+	if g.waitOneFrame == 0 {
+		return
+	}
+
+	if g.frameCnt == g.waitOneFrame {
+		return
+	}
+
+	g.waitOneFrame = 0
+	g.FlowControllerInstance.ShiftFlowToEventLoop()
 }
 
 func (g *Game) Update() error {
+	g.frameCnt++
 	InputInstance.Update()
-	GameLogInstance.Update()
+	GameLogInstance.Update(InputInstance.x, InputInstance.y)
 
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		GameLogInstance.Add("1")
-	}
+	g.WaitOneFrame()
 
-	ok := g.FlowControllerInstance.WaitForEventLoop("")
-	if !ok {
-		g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
-		//fmt.Println("event loop가 죽었슴다")
-	}
+	g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
 
 	dbClick := InputInstance.DBClick()
 
@@ -56,6 +70,9 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.mapBuf.Clear()
 	g.logBuf.Clear()
+
+	//g.mapBuf.Fill(color.RGBA{255, 0, 0, 255})
+	//g.logBuf.Fill(color.RGBA{0, 255, 0, 255})
 
 	g.gameObjectManager.Draw(g.mapBuf)
 
@@ -182,8 +199,12 @@ func (g *Game) StartEvent() {
 	g.FlowControllerInstance.StartEvent()
 }
 
-func (g *Game) WaitForMainLoop() {
-	g.FlowControllerInstance.WaitForMainLoop()
+func (g *Game) ShiftFlowToMainLoop() {
+	g.FlowControllerInstance.ShiftFlowToMainLoop()
+}
+
+func (g *Game) ShiftFlowToEventLoop() {
+	g.FlowControllerInstance.ShiftFlowToEventLoop()
 }
 
 func (g *Game) EndEvent() {
@@ -192,4 +213,12 @@ func (g *Game) EndEvent() {
 
 func (g *Game) SetText(t string) {
 	GameLogInstance.Add(t)
+}
+
+func (g *Game) TextSelect(t []string) {
+	GameLogInstance.TextSelect(t)
+}
+
+func (g *Game) GetLastSelectedIndex() int {
+	return GameLogInstance.LastSelectedIndex
 }

@@ -3,8 +3,8 @@ package game
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/painh/go2drpg/assetmanager"
+	"github.com/painh/go2drpg/game/scripts"
 	"math"
 )
 
@@ -45,7 +45,7 @@ func (g *gameObjectManager) Refresh() {
 func (g *gameObjectManager) selectProcess(x, y float64) bool {
 	objFound := false
 
-	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
+	if InputInstance.LBtnPressed() {
 		for _, e := range g.objects {
 			e.selected = false
 			if e.clickCheck(float64(x), float64(y)) {
@@ -64,7 +64,7 @@ func (g *gameObjectManager) Update(x, y int) {
 	inbound := false
 
 	if x >= ConfigInstance.MapX && y >= ConfigInstance.MapY &&
-			x < ConfigInstance.MapWidth && y < ConfigInstance.MapHeight {
+		x < ConfigInstance.MapWidth && y < ConfigInstance.MapHeight {
 		inbound = true
 	}
 
@@ -88,7 +88,7 @@ func (g *gameObjectManager) Update(x, y int) {
 			}
 		}
 
-		//scripts.StartEvent("slime")
+		scripts.StartEvent("slime")
 	}
 
 	_, wy := ebiten.Wheel()
