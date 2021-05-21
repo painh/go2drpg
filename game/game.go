@@ -55,6 +55,7 @@ func (g *Game) WaitOneFrame() {
 
 func (g *Game) Update() error {
 	g.frameCnt++
+	GameInstance.uimanager.Clicked = false
 	InputInstance.Update()
 	g.uimanager.Update()
 	g.cursor.Update()
@@ -62,7 +63,9 @@ func (g *Game) Update() error {
 
 	g.WaitOneFrame()
 
-	g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
+	if !GameInstance.uimanager.Clicked {
+		g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
+	}
 
 	//dbClick := InputInstance.DBClick()
 	//

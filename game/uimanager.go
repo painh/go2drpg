@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
+	"math"
 )
 
 type UIWidget interface {
@@ -30,6 +31,7 @@ func (u *UIButton) Update() {
 	if InputInstance.x >= int(u.x) && InputInstance.y >= int(u.y) &&
 		InputInstance.x < int(u.x+u.width) && InputInstance.y < int(u.y+u.height) {
 		u.OnClick()
+		GameInstance.uimanager.Clicked = true
 	}
 }
 
@@ -39,11 +41,31 @@ func (u *UIButton) Draw(dst *ebiten.Image) {
 }
 
 type UIManager struct {
-	uilist []UIWidget
+	uilist  []UIWidget
+	Clicked bool
 }
 
 func (u *UIManager) Init() {
 	u.uilist = []UIWidget{}
+
+	u.AddButton(float64(ConfigInstance.BtnZoomoutX), float64(ConfigInstance.BtnZoomoutY),
+		float64(ConfigInstance.BtnZoomoutWidth), float64(ConfigInstance.BtnZoomoutHeight), "줌아웃", func() {
+			TILE_SIZE = math.Max(1, TILE_SIZE+1)
+			SCALE = TILE_SIZE / SPRITE_PATTERN
+			GameInstance.cameraToCenter()
+		})
+
+	u.AddButton(float64(ConfigInstance.BtnZoominX), float64(ConfigInstance.BtnZoominY),
+		float64(ConfigInstance.BtnZoominWidth), float64(ConfigInstance.BtnZoominHeight), "줌인", func() {
+			TILE_SIZE = math.Max(1, TILE_SIZE-1)
+			SCALE = TILE_SIZE / SPRITE_PATTERN
+			GameInstance.cameraToCenter()
+		})
+
+	u.AddButton(float64(ConfigInstance.BtnCenterX), float64(ConfigInstance.BtnCenterY),
+		float64(ConfigInstance.BtnCenterWidth), float64(ConfigInstance.BtnCenterHeight), "중앙", func() {
+			GameInstance.cameraToCenter()
+		})
 
 	u.AddButton(float64(ConfigInstance.BtnPersonX), float64(ConfigInstance.BtnPersonY),
 		float64(ConfigInstance.BtnPersonWidth), float64(ConfigInstance.BtnPersonHeight), "인물 목록", func() {
