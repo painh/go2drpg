@@ -26,6 +26,14 @@ import (
 //	return contents, err
 //}
 
+func OpenFile(filename string) ebitenutil.ReadSeekCloser {
+	r, err := ebitenutil.OpenFile(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return r
+}
 func ReadFile(filename string) ([]byte, error) {
 	r, err := ebitenutil.OpenFile(filename)
 	if err != nil {

@@ -1,9 +1,7 @@
 package game
 
 import (
-	"fmt"
 	"github.com/beefsack/go-astar"
-	"log"
 )
 
 type TilePos struct {
@@ -25,9 +23,9 @@ func (t *TileManager) FindTo(x1, y1, x2, y2 float64) ([]astar.Pather, float64, b
 	from := tileManagerInstance.Get(x1, y1)
 	to := tileManagerInstance.Get(x2, y2)
 	path, distance, found := astar.Path(from, to)
-	fmt.Println(path)
-	fmt.Println(distance)
-	fmt.Println(found)
+	//fmt.Println(path)
+	//fmt.Println(distance)
+	//fmt.Println(found)
 
 	return path, distance, found
 }
@@ -90,7 +88,7 @@ func (t *TilePos) PathNeighbors() []astar.Pather {
 	for _, v := range list {
 		distnace := ManhattanDistance(tileManagerInstance.x1, tileManagerInstance.y1, v[0], v[1])
 		if distnace > 100 {
-			log.Println("too far", tileManagerInstance.x1, tileManagerInstance.y1, v[0], v[1], distnace)
+			//log.Println("too far", tileManagerInstance.x1, tileManagerInstance.y1, v[0], v[1], distnace)
 			continue
 		}
 

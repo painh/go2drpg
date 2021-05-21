@@ -1,7 +1,6 @@
 package game
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"math"
@@ -35,7 +34,7 @@ func (d *Input) Update() {
 		d.pressed = ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 		d.clicked = inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft)
 	} else {
-		fmt.Println(ids)
+		//fmt.Println(ids)
 		d.pressed = true
 
 		d.clicked = len(inpututil.JustPressedTouchIDs()) > 0
@@ -57,7 +56,7 @@ func (d *Input) Update() {
 	}
 
 	now := makeTimestamp()
-	fmt.Println(now-d.LastClickTS, ConfigInstance.DoubleClickTsMargin)
+	//fmt.Println(now-d.LastClickTS, ConfigInstance.DoubleClickTsMargin)
 
 	if math.Abs(float64(d.x-d.LastX)) < float64(ConfigInstance.DoubleClickPixelMargin) &&
 		math.Abs(float64(d.y-d.LastY)) < float64(ConfigInstance.DoubleClickPixelMargin) &&
@@ -86,7 +85,7 @@ func (d *Input) RBtnClicked() bool {
 	ret := inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight) || d.DBClick()
 
 	if ret {
-		fmt.Println(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight), d.DBClick())
+		//fmt.Println(inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonRight), d.DBClick())
 	}
 
 	return ret

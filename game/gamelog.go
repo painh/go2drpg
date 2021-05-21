@@ -132,9 +132,7 @@ func (g *GameLog) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (g *GameLog) Add(a ...interface{}) {
-
-	text := fmt.Sprint(a...)
+func (g *GameLog) AddString(text string) {
 
 	l := GameLogElement{text: text, createdTs: makeTimestamp()}
 	l.Set(text)
@@ -144,8 +142,15 @@ func (g *GameLog) Add(a ...interface{}) {
 	if len(g.lines) > ConfigInstance.LogLines {
 		g.lines = g.lines[:len(g.lines)-1]
 	}
+}
 
-	fmt.Println(text)
+func (g *GameLog) Add(a ...interface{}) {
+	text := fmt.Sprint(a...)
+	g.AddString(text)
+}
+
+func (g *GameLog) AddWithPrompt(a ...interface{}) {
+	g.AddString(GameInstance.cursor.MakeTimePrompt(a...))
 }
 
 func (g *GameLog) TextSelect(t []string) {

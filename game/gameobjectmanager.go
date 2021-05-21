@@ -1,10 +1,8 @@
 package game
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/painh/go2drpg/assetmanager"
-	"github.com/painh/go2drpg/game/scripts"
 	"math"
 )
 
@@ -50,7 +48,7 @@ func (g *gameObjectManager) selectProcess(x, y float64) bool {
 			e.selected = false
 			if e.clickCheck(float64(x), float64(y)) {
 				e.selected = true
-				fmt.Println(e)
+				//fmt.Println(e)
 				objFound = true
 			}
 		}
@@ -68,7 +66,7 @@ func (g *gameObjectManager) Update(x, y int) {
 		inbound = true
 	}
 
-	if InputInstance.LBtnPressed() {
+	if InputInstance.LBtnPressed() && inbound{
 		if !objFound {
 			dx := float64(InputInstance.prevX - x)
 			dy := float64(InputInstance.prevY - y)
@@ -84,11 +82,11 @@ func (g *gameObjectManager) Update(x, y int) {
 		for _, e := range g.objects {
 			if e.selected {
 				e.FindTo(worldX, worldY)
-				GameLogInstance.Add(worldX, worldY)
 			}
 		}
 
-		scripts.StartEvent("slime")
+		GameInstance.cameraToCenter()
+		//scripts.StartEvent("slime")
 	}
 
 	_, wy := ebiten.Wheel()
@@ -96,13 +94,27 @@ func (g *gameObjectManager) Update(x, y int) {
 		TILE_SIZE = math.Max(1, TILE_SIZE+wy)
 		SCALE = TILE_SIZE / SPRITE_PATTERN
 
-		CameraInstance.Refresh()
-		g.Refresh()
+		GameInstance.cameraToCenter()
+
+		//CameraInstance.Refresh()
+		//g.Refresh()
 	}
 
 	for _, e := range g.objects {
 		e.Update()
 	}
+}
+
+func (g *gameObjectManager) GetSelectedList() []*GameObject {
+	var ret = []*GameObject{}
+
+	for _, e := range g.objects {
+		if e.selected {
+			ret = append(ret, e)
+		}
+	}
+
+	return ret
 }
 
 func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, name string) {

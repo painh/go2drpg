@@ -5,6 +5,7 @@ import (
 	"github.com/fardog/tmx"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/painh/go2drpg/assetmanager"
 	"github.com/painh/go2drpg/game/scripts"
 	"log"
@@ -27,6 +28,9 @@ type Game struct {
 	mapBufOp               *ebiten.DrawImageOptions
 	logBuf                 *ebiten.Image
 	logBufOp               *ebiten.DrawImageOptions
+	itemOriginManager      ItemOriginManager
+	uimanager              UIManager
+	cursor                 Cursor
 
 	frameCnt     int64
 	waitOneFrame int64
@@ -52,19 +56,42 @@ func (g *Game) WaitOneFrame() {
 func (g *Game) Update() error {
 	g.frameCnt++
 	InputInstance.Update()
+	g.uimanager.Update()
+	g.cursor.Update()
 	GameLogInstance.Update(InputInstance.x, InputInstance.y)
 
 	g.WaitOneFrame()
 
 	g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
 
-	dbClick := InputInstance.DBClick()
+	//dbClick := InputInstance.DBClick()
+	//
+	//if dbClick {
+	//	fmt.Println(dbClick)
+	//}
 
-	if dbClick {
-		fmt.Println(dbClick)
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
+		g.cameraToCenter()
 	}
 
 	return nil
+}
+
+func (g *Game) cameraToCenter() {
+	list := g.gameObjectManager.GetSelectedList()
+	if len(list) > 0 {
+		x := float64(0)
+		y := float64(0)
+		for i := 0; i < len(list); i++ {
+			x += list[i].x
+			y += list[i].y
+		}
+		x = x / float64(len(list)) * TILE_SIZE
+		y = y / float64(len(list)) * TILE_SIZE
+		CameraInstance.SetXY(x-float64(ConfigInstance.MapWidth/2)+TILE_SIZE/2, y-float64(ConfigInstance.MapHeight/2)+TILE_SIZE/2)
+
+		g.gameObjectManager.Refresh()
+	}
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -82,6 +109,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	screen.DrawImage(g.mapBuf, g.mapBufOp)
 	screen.DrawImage(g.logBuf, g.logBufOp)
+	g.uimanager.Draw(screen)
+	g.cursor.Draw(screen)
 
 	fps := fmt.Sprintf("%f", ebiten.CurrentFPS())
 	defaultFontInstance.DrawTextInBox(screen, "hello : "+fps, 0, 0)
@@ -105,6 +134,9 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 	assetmanager.MakePatternImages("base", int(SPRITE_PATTERN), int(SPRITE_PATTERN))
 
 	defaultFontInstance.LoadFont(ConfigInstance.FontPath, ConfigInstance.FontSize)
+
+	GameInstance.itemOriginManager = ItemOriginManager{dict: make(map[int]*ItemOrigin)}
+	GameInstance.itemOriginManager.LoadFromCSV("assets/items.csv")
 
 	file, err := ebitenutil.OpenFile((path.Join(".", "assets/tile.tmx")))
 	if err != nil {
@@ -169,10 +201,13 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 	GameInstance.gameObjectManager.Height = float64(m.Height) * TILE_SIZE
 
 	GameLogInstance.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
-	GameLogInstance.Add("2")
-	GameLogInstance.Add("3")
-	GameLogInstance.Add("4")
-	GameLogInstance.Add("5")
+	for i := 0; i < 50; i++ {
+		GameLogInstance.Add(strconv.Itoa(i))
+	}
+
+	GameInstance.cameraToCenter()
+	GameInstance.uimanager.Init()
+	GameInstance.cursor.Init()
 
 	return &GameInstance
 }

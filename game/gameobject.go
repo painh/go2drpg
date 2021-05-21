@@ -21,6 +21,7 @@ func (g *GameObject) FindTo(x, y float64) {
 	path, _, found := tileManagerInstance.FindTo(g.x, g.y, x, y)
 
 	if !found {
+		GameLogInstance.AddWithPrompt("can't move there")
 		return
 	}
 
@@ -29,6 +30,9 @@ func (g *GameObject) FindTo(x, y float64) {
 		v := path[i]
 		g.movePosList = append(g.movePosList, v.(*TilePos))
 	}
+
+	GameLogInstance.AddWithPrompt("Move : ", x, y)
+
 }
 
 func (g *GameObject) Draw2(screen *ebiten.Image) {
