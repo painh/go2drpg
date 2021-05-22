@@ -17,16 +17,8 @@ func (g *gameObjectManager) Draw(screen *ebiten.Image) {
 		e.Draw(screen)
 	}
 
-	for _, e := range g.tiles {
-		e.Draw2(screen)
-	}
-
 	for _, e := range g.objects {
 		e.Draw(screen)
-	}
-
-	for _, e := range g.objects {
-		e.Draw2(screen)
 	}
 }
 
@@ -66,7 +58,7 @@ func (g *gameObjectManager) Update(x, y int) {
 		inbound = true
 	}
 
-	if InputInstance.LBtnPressed() && inbound{
+	if InputInstance.LBtnPressed() && inbound {
 		if !objFound {
 			dx := float64(InputInstance.prevX - x)
 			dy := float64(InputInstance.prevY - y)
@@ -79,14 +71,18 @@ func (g *gameObjectManager) Update(x, y int) {
 		worldX := float64(int(x+int(CameraInstance.x)) / int(TILE_SIZE))
 		worldY := float64(int(y+int(CameraInstance.y)) / int(TILE_SIZE))
 
-		for _, e := range g.objects {
-			if e.selected {
-				e.FindTo(worldX, worldY)
+		if worldX >= 0 && worldY >= 0 && worldX < GameInstance.mapWidth && worldY < GameInstance.mapHeight {
+			for _, e := range g.objects {
+				if e.selected {
+					e.FindTo(worldX, worldY)
+				}
 			}
-		}
 
-		GameInstance.cameraToCenter()
-		//scripts.StartEvent("slime")
+			//GameInstance.cameraToCenter()
+			//scripts.StartEvent("slime")
+		} else {
+			GameLogInstance.AddWithPrompt("그곳으로 이동 할 수 없습니다.")
+		}
 	}
 
 	_, wy := ebiten.Wheel()
@@ -119,7 +115,7 @@ func (g *gameObjectManager) GetSelectedList() []*GameObject {
 
 func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, name string) {
 	img := assetmanager.Get(name)
-	obj := &GameSprite{x, y, 0, 0, width, height, false, img, &ebiten.DrawImageOptions{}}
+	obj := &GameSprite{x: x, y: y, screenX: 0, screenY: 0, width: width, height: height, selected: false, img: img, op: &ebiten.DrawImageOptions{}}
 	obj.Init()
 	obj.SetXY(x, y)
 	g.tiles = append(g.tiles, obj)
@@ -127,12 +123,13 @@ func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, name stri
 
 func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, sprName, objName string) {
 	img := assetmanager.Get(sprName)
-	obj := &GameObject{GameSprite: GameSprite{x, y, 0, 0, width, height, false, img, &ebiten.DrawImageOptions{}},
+	obj := &GameObject{GameSprite: GameSprite{x: x, y: y, screenX: 0, screenY: 0, width: width, height: height, selected: false, img: img, op: &ebiten.DrawImageOptions{}},
 		cdmanager:   CooldownManager{dict: make(map[string]*Cooldown)},
 		objName:     objName,
 		movePosList: []*TilePos{}}
-	//obj := &GameSprite{x, y, width, height, false, img, ebiten.DrawImageOptions{}}
+	//obj := &GameSprite{x, y, screenWidth, screenHeight, false, img, ebiten.DrawImageOptions{}}
 	obj.SetXY(x, y)
+	obj.SetSize(width, height)
 
 	if objName == "Player" {
 		obj.selected = true
@@ -142,15 +139,14 @@ func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, sprName, 
 	g.objects = append(g.objects, obj)
 }
 
-func (g *gameObjectManager) CheckGameObjectPosition(x, y float64) bool {
-	if x < 0 || y < 0 || x >= g.Width || y >= g.Height {
-		return true
-	}
-
+func (g *gameObjectManager) CheckGameObjectPosition(x, y, width, height float64, self *GameObject) *GameObject {
 	for _, e := range g.objects {
-		if e.GameSprite.x == x && e.GameSprite.y == y {
-			return true
+		if e == self {
+			continue
+		}
+		if e.CheckCollision(x, y, width, height) {
+			return e
 		}
 	}
-	return false
+	return nil
 }

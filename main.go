@@ -22,9 +22,10 @@ import (
 )
 
 func main() {
-	game.ConfigInstance.Load("config.json")
+	game.EntryConfigInstance.Load("config.json")
+	game.ConfigInstance.Load(game.EntryConfigInstance.Scenario[0].Config)
 
-	g := game.NewGame(game.ConfigInstance.WindowWidth, game.ConfigInstance.WindowHeight)
+	g := game.NewGame(game.EntryConfigInstance.WindowWidth, game.EntryConfigInstance.WindowHeight)
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}

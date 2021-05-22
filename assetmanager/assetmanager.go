@@ -49,7 +49,8 @@ func makePatternImage(origin *ImageResource, patternX, patternY, patternWidth, p
 func Get(name string) *ImageResource {
 	v, found := Instance.dict[name]
 	if !found {
-		log.Fatal(name + " was not exist")
+		//log.Fatal(name + " was not exist")
+		return nil
 	}
 
 	return v

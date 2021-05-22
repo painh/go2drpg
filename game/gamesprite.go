@@ -7,13 +7,16 @@ import (
 )
 
 type GameSprite struct {
-	x        float64
-	y        float64
-	screenX  float64
-	screenY  float64
-	width    float64
-	height   float64
-	selected bool
+	x      float64
+	y      float64
+	width  float64
+	height float64
+
+	screenX      float64
+	screenY      float64
+	screenWidth  float64
+	screenHeight float64
+	selected     bool
 
 	img *assetmanager.ImageResource
 	op  *ebiten.DrawImageOptions
@@ -26,23 +29,15 @@ func (g *GameSprite) Init() {
 }
 
 func (g *GameSprite) Draw(screen *ebiten.Image) {
-	screen.DrawImage(g.img.Img, g.op)
-
-	//if g.selected {
-	//	DrawRect(screen, g.x, g.y, g.width, g.height, color.RGBA{0, 255, 0, 255})
-	//}
-}
-
-func (g *GameSprite) Draw2(screen *ebiten.Image) {
-	//screen.DrawImage(g.img.Img, &g.op)
-
-	if g.selected {
-		DrawRect(screen, g.screenX, g.screenY, TILE_SIZE, TILE_SIZE, color.RGBA{G: 255, A: 255})
+	if g.img != nil {
+		screen.DrawImage(g.img.Img, g.op)
+	} else {
+		DrawRect(screen, g.screenX, g.screenY, g.screenWidth, g.screenHeight, color.RGBA{R: 255, A: 255})
 	}
 }
 
 func (g *GameSprite) clickCheck(x, y float64) bool {
-	if x >= g.screenX && y >= g.screenY && g.screenX+g.width > x && g.screenY+g.height > y {
+	if x >= g.screenX && y >= g.screenY && g.screenX+g.screenWidth > x && g.screenY+g.screenHeight > y {
 		return true
 	}
 
@@ -56,8 +51,8 @@ func (g *GameSprite) Refresh() {
 
 	g.op.GeoM.Translate(g.screenX/SCALE, g.screenY/SCALE)
 	g.op.GeoM.Scale(SCALE, SCALE)
-	g.width = TILE_SIZE
-	g.height = TILE_SIZE
+	g.screenWidth = g.width * SCALE
+	g.screenHeight = g.height * SCALE
 }
 
 func (g *GameSprite) SetXY(x, y float64) {

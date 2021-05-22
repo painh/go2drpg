@@ -12,13 +12,15 @@ type TilePos struct {
 type TileManager struct {
 	dict           map[float64]map[float64]*TilePos
 	x1, y1, x2, y2 float64
+	currentObject  *GameObject
 }
 
-func (t *TileManager) FindTo(x1, y1, x2, y2 float64) ([]astar.Pather, float64, bool) {
+func (t *TileManager) FindTo(x1, y1, x2, y2 float64, currentObject *GameObject) ([]astar.Pather, float64, bool) {
 	t.x1 = x1
 	t.y1 = y1
 	t.x2 = x2
 	t.y2 = y2
+	t.currentObject = currentObject
 
 	from := tileManagerInstance.Get(x1, y1)
 	to := tileManagerInstance.Get(x2, y2)
@@ -98,7 +100,8 @@ func (t *TilePos) PathNeighbors() []astar.Pather {
 			continue
 		}
 
-		if !GameInstance.gameObjectManager.CheckGameObjectPosition(v[0], v[1]) {
+		obj := GameInstance.gameObjectManager.CheckGameObjectPosition(v[0]*SPRITE_PATTERN, v[1]*SPRITE_PATTERN, tileManagerInstance.currentObject.width, tileManagerInstance.currentObject.height, tileManagerInstance.currentObject)
+		if obj == nil {
 			tile := tileManagerInstance.Get(v[0], v[1])
 			ret = append(ret, tile)
 		}

@@ -34,6 +34,14 @@ func textSelect(t []string) int {
 	return (eventProcessor).GetLastSelectedIndex()
 }
 
+func CheckEvent(eventname string) bool {
+	if ScriptFunc[eventname] == nil {
+		return false
+	}
+
+	return true
+}
+
 func StartEvent(eventname string) {
 	go func() {
 		(eventProcessor).StartEvent()

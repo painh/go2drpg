@@ -15,7 +15,7 @@ import (
 
 var TILE_SIZE float64 = 32
 
-const SPRITE_PATTERN = float64(16)
+var SPRITE_PATTERN = float64(16)
 
 var SCALE float64 = TILE_SIZE / SPRITE_PATTERN
 
@@ -28,9 +28,12 @@ type Game struct {
 	mapBufOp               *ebiten.DrawImageOptions
 	logBuf                 *ebiten.Image
 	logBufOp               *ebiten.DrawImageOptions
-	itemOriginManager      ItemOriginManager
-	uimanager              UIManager
-	cursor                 Cursor
+	//itemOriginManager      ItemOriginManager
+	uimanager UIManager
+	cursor    Cursor
+
+	mapWidth  float64
+	mapHeight float64
 
 	frameCnt     int64
 	waitOneFrame int64
@@ -133,15 +136,12 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 
 	scripts.Init(&GameInstance)
 
-	assetmanager.Load("assets/16x16_Jerom_CC-BY-SA-3.0.png", "base")
-	assetmanager.MakePatternImages("base", int(SPRITE_PATTERN), int(SPRITE_PATTERN))
-
 	defaultFontInstance.LoadFont(ConfigInstance.FontPath, ConfigInstance.FontSize)
 
-	GameInstance.itemOriginManager = ItemOriginManager{dict: make(map[int]*ItemOrigin)}
-	GameInstance.itemOriginManager.LoadFromCSV("assets/items.csv")
+	//GameInstance.itemOriginManager = ItemOriginManager{dict: make(map[int]*ItemOrigin)}
+	//GameInstance.itemOriginManager.LoadFromCSV("assets/items.csv")
 
-	file, err := ebitenutil.OpenFile((path.Join(".", "assets/tile.tmx")))
+	file, err := ebitenutil.OpenFile((path.Join(".", ConfigInstance.LocationList[0].Filename)))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -157,11 +157,18 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 		log.Fatal("map was nil")
 	}
 
+	SPRITE_PATTERN = float64(ConfigInstance.SpritePatternSize)
+	assetmanager.Load(ConfigInstance.TileSpriteFilename, "base")
+	assetmanager.MakePatternImages("base", int(SPRITE_PATTERN), int(SPRITE_PATTERN))
+
 	if base := m.LayerWithName("base"); base != nil {
 		trs, err := base.TileGlobalRefs()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		GameInstance.mapWidth = float64(m.Width)
+		GameInstance.mapHeight = float64(m.Height)
 
 		if l, e := len(trs), m.Width*m.Height; l != e {
 			log.Fatalf("expected tiles of length %v, got %v", e, l)
@@ -176,7 +183,7 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 
 		for y := 0; y < base.Height; y++ {
 			for x := 0; x < base.Width; x++ {
-				GameInstance.gameObjectManager.GameSpriteAdd(float64(x), float64(y), TILE_SIZE, TILE_SIZE, "base_"+strconv.Itoa(int(tds[cnt].ID)))
+				GameInstance.gameObjectManager.GameSpriteAdd(float64(x), float64(y), SPRITE_PATTERN, SPRITE_PATTERN, "base_"+strconv.Itoa(int(tds[cnt].ID)))
 				cnt++
 			}
 		}
@@ -186,9 +193,13 @@ func NewGame(screenWidth int, screenHeight int) *Game {
 
 		for _, v := range objects.Objects {
 			x := v.X / SPRITE_PATTERN
-			y := v.Y/SPRITE_PATTERN - 1
+			y := v.Y / SPRITE_PATTERN
 
-			GameInstance.gameObjectManager.GameObjectAdd(float64(x), float64(y), TILE_SIZE, TILE_SIZE, "base_"+strconv.Itoa(int(v.GlobalID-1)), v.Name)
+			if v.GlobalID != 0 { //GlobalID가 없다면, 이미지가 선택되지 않은 충돌 사각형으로 생각하여 원본을 씀. Tiled가 오브젝트일때는 y좌표를 + 1해서 주는 방식이라 후처리를 해야함.
+				y--
+			}
+
+			GameInstance.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, "base_"+strconv.Itoa(int(v.GlobalID-1)), v.Name)
 		}
 
 		//for y := 0; y < base.Height; y++ {
