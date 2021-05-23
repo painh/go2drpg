@@ -7,8 +7,9 @@ import (
 
 type (
 	LocationInfo struct {
-		Name     string `json:"name"`
-		Filename string `json:"filename"`
+		Name        string `json:"name"`
+		DisplayName string `json:"display_name"`
+		Filename    string `json:"filename"`
 	}
 	Config struct {
 		WindowWidth            int            `json:"window_width"`
@@ -57,7 +58,10 @@ type (
 		BtnCenterHeight        int            `json:"btn_center_height"`
 		SpritePatternSize      int            `json:"sprite_pattern_size"`
 		TileSpriteFilename     string         `json:"tile_sprite_filename"`
-		LocationList          []LocationInfo `json:"location_list"`
+		LocationList           []LocationInfo `json:"location_list"`
+		DefaultMoveMin         int            `json:"default_move_min"`
+		PlayerObjectName       string         `json:"player_object_name"`
+		ZoomStep               int            `json:"zoom_step"`
 	}
 )
 

@@ -12,6 +12,11 @@ type gameObjectManager struct {
 	objects       []*GameObject
 }
 
+func (g *gameObjectManager) Clear() {
+	g.tiles = []*GameSprite{}
+	g.objects = []*GameObject{}
+}
+
 func (g *gameObjectManager) Draw(screen *ebiten.Image) {
 	for _, e := range g.tiles {
 		e.Draw(screen)
@@ -131,7 +136,7 @@ func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, sprName, 
 	obj.SetXY(x, y)
 	obj.SetSize(width, height)
 
-	if objName == "Player" {
+	if objName == ConfigInstance.PlayerObjectName {
 		obj.selected = true
 	}
 

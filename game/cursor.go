@@ -9,8 +9,6 @@ import (
 type Cursor struct {
 	x                float64
 	y                float64
-	day              int
-	curTimeMin       int
 	showCursor       bool
 	prompt           string
 	lastCursorStatus bool
@@ -19,15 +17,15 @@ type Cursor struct {
 func (c *Cursor) Init() {
 	c.x = float64(ConfigInstance.CursorX)
 	c.y = float64(ConfigInstance.CursorY)
-	c.curTimeMin = ConfigInstance.StartTimeMin
+
 }
 
 func (c *Cursor) MakeTimePrompt(a ...interface{}) string {
 	text := fmt.Sprint(a...)
 
-	hour := c.curTimeMin / 60
-	min := c.curTimeMin % 60
-	return fmt.Sprintf("%d/%02d:%02d> %s", c.day, int(hour), int(min), text)
+	hour := GameInstance.player.curTimeMin / 60
+	min := GameInstance.player.curTimeMin % 60
+	return fmt.Sprintf("%d/%02d:%02d> %s", GameInstance.player.day, int(hour), int(min), text)
 }
 
 func (c *Cursor) Update() {

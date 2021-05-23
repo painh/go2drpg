@@ -65,6 +65,10 @@ func (g *GameObject) Update() {
 
 		g.movePosList = g.movePosList[1:]
 		g.GameSprite.SetXY(tile.x, tile.y)
+
+		if g.objName == ConfigInstance.PlayerObjectName {
+			GameInstance.player.AddTime(ConfigInstance.DefaultMoveMin)
+		}
 	}
 }
 

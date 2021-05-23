@@ -50,14 +50,14 @@ func (u *UIManager) Init() {
 
 	u.AddButton(float64(ConfigInstance.BtnZoomoutX), float64(ConfigInstance.BtnZoomoutY),
 		float64(ConfigInstance.BtnZoomoutWidth), float64(ConfigInstance.BtnZoomoutHeight), "줌아웃", func() {
-			TILE_SIZE = math.Max(1, TILE_SIZE+1)
+			TILE_SIZE = math.Max(1, TILE_SIZE+float64(ConfigInstance.ZoomStep))
 			SCALE = TILE_SIZE / SPRITE_PATTERN
 			GameInstance.cameraToCenter()
 		})
 
 	u.AddButton(float64(ConfigInstance.BtnZoominX), float64(ConfigInstance.BtnZoominY),
 		float64(ConfigInstance.BtnZoominWidth), float64(ConfigInstance.BtnZoominHeight), "줌인", func() {
-			TILE_SIZE = math.Max(1, TILE_SIZE-1)
+			TILE_SIZE = math.Max(1, TILE_SIZE-float64(ConfigInstance.ZoomStep))
 			SCALE = TILE_SIZE / SPRITE_PATTERN
 			GameInstance.cameraToCenter()
 		})
@@ -74,7 +74,17 @@ func (u *UIManager) Init() {
 
 	u.AddButton(float64(ConfigInstance.BtnLocationX), float64(ConfigInstance.BtnLocationY),
 		float64(ConfigInstance.BtnLocationWidth), float64(ConfigInstance.BtnLocationHeight), "장소 목록", func() {
-			fmt.Println("장소 목록")
+			var list []TextSelectElement = []TextSelectElement{}
+
+			for _, v := range GameInstance.player.activeLocation {
+				list = append(list, TextSelectElement{key: v.name, displayString: v.location.DisplayName, info: v})
+			}
+			GameLogInstance.TextSelect(list, func(info interface{}) {
+				v := info.(Location)
+				GameLogInstance.AddWithPrompt("이동 ", v.location.DisplayName)
+				GameInstance.player.AddTime(20)
+				GameInstance.LoadMap(*v.location)
+			})
 		})
 	u.AddButton(float64(ConfigInstance.BtnItemX), float64(ConfigInstance.BtnItemY),
 		float64(ConfigInstance.BtnItemWidth), float64(ConfigInstance.BtnItemHeight), "아이템 목록", func() {

@@ -15,7 +15,7 @@
 13,13,13,13,13,13,2,13,13,13,13,13,13
 </data>
  </layer>
- <objectgroup id="2" name="objLayer">
+ <objectgroup id="2" name="obj">
   <object id="3" name="Player" type="player" gid="191" x="96" y="80" width="16" height="16"/>
   <object id="13" name="상자" type="상자" gid="85" x="32" y="32" width="16" height="16"/>
   <object id="82" x="0" y="0" width="240" height="16"/>

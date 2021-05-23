@@ -10,6 +10,7 @@ import (
 type GameLogElement struct {
 	text        string
 	createdTs   int64
+	key         string
 	imageBuf    *ebiten.Image
 	lineHeight  float64
 	selectGroup int
@@ -77,9 +78,21 @@ type GameLog struct {
 	currentSelectGroup int
 	waitForSelect      bool
 	LastSelectedIndex  int
+	callBack           func(info interface{})
+	textSelectElement  []TextSelectElement
 }
 
 var GameLogInstance = GameLog{lines: []*GameLogElement{}}
+
+func (g *GameLog) GetLocationInfo(key string) interface{} {
+	for _, v := range g.textSelectElement {
+		if v.key == key {
+			return v.info
+		}
+	}
+
+	return nil
+}
 
 func (g *GameLog) Update(x, y int) {
 	if !g.waitForSelect {
@@ -112,7 +125,13 @@ func (g *GameLog) Update(x, y int) {
 			g.LastSelectedIndex = e.selectIndex
 			e.selected = true
 			g.waitForSelect = false
-			GameInstance.ShiftFlowToEventLoop()
+			if g.callBack != nil {
+				info := g.GetLocationInfo(e.key)
+				g.callBack(info)
+			} else {
+				GameInstance.ShiftFlowToEventLoop()
+			}
+
 		}
 
 		lineY -= float64(e.lineHeight)
@@ -153,14 +172,21 @@ func (g *GameLog) AddWithPrompt(a ...interface{}) {
 	g.AddString(GameInstance.cursor.MakeTimePrompt(a...))
 }
 
-func (g *GameLog) TextSelect(t []string) {
+type TextSelectElement struct {
+	displayString string
+	key           string
+	info          interface{}
+}
+
+func (g *GameLog) TextSelect(t []TextSelectElement, callBack func(info interface{})) {
 
 	g.currentSelectGroup++
 	g.waitForSelect = true
+	g.callBack = callBack
 
 	for i, v := range t {
-		l := GameLogElement{text: "", createdTs: makeTimestamp()}
-		l.Set(" • " + v)
+		l := GameLogElement{text: "", createdTs: makeTimestamp(), key: v.key}
+		l.Set(" • " + v.displayString)
 		l.selectGroup = g.currentSelectGroup
 		l.selectIndex = i
 
@@ -170,4 +196,6 @@ func (g *GameLog) TextSelect(t []string) {
 			g.lines = g.lines[:len(g.lines)-1]
 		}
 	}
+
+	g.textSelectElement = t
 }

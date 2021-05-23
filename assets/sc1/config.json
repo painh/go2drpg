@@ -48,11 +48,16 @@
   "location_list": [
     {
       "name": "사무실",
+      "display_name": "사무실",
       "filename": "assets/sc1/tile.tmx"
     },
     {
       "name": "공원",
+      "display_name": "공원",
       "filename": "assets/sc1/park.tmx"
     }
-  ]
+  ],
+  "default_move_min": 1,
+  "player_object_name": "Player",
+  "zoom_step": 4
 }
