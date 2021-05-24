@@ -72,7 +72,7 @@ func (g *gameObjectManager) Update(x, y int) {
 		}
 	}
 
-	if inbound && InputInstance.RBtnClicked() {
+	if inbound && (InputInstance.LBtnClicked() || InputInstance.RBtnClicked()) {
 		worldX := float64(int(x+int(CameraInstance.x)) / int(TILE_SIZE))
 		worldY := float64(int(y+int(CameraInstance.y)) / int(TILE_SIZE))
 
