@@ -63,7 +63,11 @@ func NewPlayer(audioContext *audio.Context, filename string) (*MusicPlayer, erro
 		return nil, err
 	}
 
-	p, err := audio.NewPlayer(audioContext, s)
+	//https://titanwolf.org/Network/Articles/Article?AID=edc8b4a9-5d00-4326-838a-35e2234bd11c#gsc.tab=0
+	//thanks
+	l := audio.NewInfiniteLoop(s, s.Length())
+
+	p, err := audio.NewPlayer(audioContext, l)
 	if err != nil {
 		return nil, err
 	}
@@ -91,12 +95,7 @@ func (p *MusicPlayer) Close() error {
 func (p *MusicPlayer) update() error {
 	if p.audioPlayer.IsPlaying() {
 		p.current = p.audioPlayer.Current()
-	} else {
-		p.audioPlayer.Rewind()
-		p.audioPlayer.Play()
-		p.current = 0
 	}
-
 	return nil
 }
 
