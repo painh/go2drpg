@@ -1,0 +1,57 @@
+---
+window_width: 800
+window_height: 600
+title: Go 2D RPG
+double_click_pixel_margin: 16
+double_click_ts_margin: 200
+font_path: assets/common/SCDream5.otf
+font_size: 16
+log_lines: 200
+map_x: 0
+map_y: 0
+map_width: 399
+map_height: 600
+log_x: 400
+log_y: 0
+log_width: 400
+log_height: 529
+line_spacing: 5
+btn_person_x: 400
+btn_person_y: 570
+btn_person_width: 100
+btn_person_height: 30
+btn_location_x: 500
+btn_location_y: 570
+btn_location_width: 100
+btn_location_height: 30
+btn_item_x: 600
+btn_item_y: 570
+btn_item_width: 100
+btn_item_height: 30
+cursor_x: 400
+cursor_y: 545
+start_time_min: 570
+btn_zoomout_x: 0
+btn_zoomout_y: 570
+btn_zoomout_width: 50
+btn_zoomout_height: 30
+btn_zoomin_x: 50
+btn_zoomin_y: 570
+btn_zoomin_width: 50
+btn_zoomin_height: 30
+btn_center_x: 100
+btn_center_y: 570
+btn_center_width: 50
+btn_center_height: 30
+sprite_pattern_size: 16
+tile_sprite_filename: assets/common/16x16_Jerom_CC-BY-SA-3.0.png
+location_list:
+  - name: 사무실
+    display_name: 사무실
+    filename: assets/sc1/tile.tmx
+  - name: 공원
+    display_name: 공원
+    filename: assets/sc1/park.tmx
+default_move_min: 1
+player_object_name: Player
+zoom_step: 4

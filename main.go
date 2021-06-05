@@ -22,7 +22,7 @@ import (
 )
 
 func main() {
-	game.EntryConfigInstance.Load("config.json")
+	game.EntryConfigInstance.Load("config.yml")
 	game.ConfigInstance.Load(game.EntryConfigInstance.Scenario[0].Config)
 
 	g := game.NewGame(game.EntryConfigInstance.WindowWidth, game.EntryConfigInstance.WindowHeight)

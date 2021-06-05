@@ -86,7 +86,7 @@ func (g *gameObjectManager) Update(x, y int) {
 			//GameInstance.cameraToCenter()
 			//scripts.StartEvent("slime")
 		} else {
-			GameLogInstance.AddWithPrompt("그곳으로 이동 할 수 없습니다.")
+			GameInstance.Log.AddWithPrompt("그곳으로 이동 할 수 없습니다.")
 		}
 	}
 

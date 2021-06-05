@@ -2,7 +2,7 @@ package game
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/painh/go2drpg/game/scripts"
+	//"github.com/painh/go2drpg/game/scripts"
 	"image/color"
 )
 
@@ -27,7 +27,7 @@ func (g *GameObject) FindTo(x, y float64) {
 	path, _, found := tileManagerInstance.FindTo(g.x, g.y, x, y, g)
 
 	if !found {
-		GameLogInstance.AddWithPrompt("can't move there")
+		GameInstance.Log.AddWithPrompt("can't move there")
 		return
 	}
 
@@ -37,7 +37,7 @@ func (g *GameObject) FindTo(x, y float64) {
 		g.movePosList = append(g.movePosList, v.(*TilePos))
 	}
 
-	GameLogInstance.AddWithPrompt("Move : ", x, y)
+	GameInstance.Log.AddWithPrompt("Move : ", x, y)
 
 }
 
@@ -54,11 +54,11 @@ func (g *GameObject) Update() {
 			if len(g.movePosList) == 1 {
 				//도착점이면 이벤트 발생
 				g.movePosList = g.movePosList[1:]
-				if scripts.CheckEvent(obj.objName) {
-					scripts.StartEvent(obj.objName)
-				} else {
-					GameLogInstance.AddWithPrompt("아무것도 없습니다.")
-				}
+				//if scripts.CheckEvent(obj.objName) {
+				//	scripts.StartEvent(obj.objName)
+				//} else {
+				//	GameInstance.Log.AddWithPrompt("아무것도 없습니다.")
+				//}
 				return
 			}
 		}

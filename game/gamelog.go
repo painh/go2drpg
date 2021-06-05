@@ -80,9 +80,10 @@ type GameLog struct {
 	LastSelectedIndex  int
 	callBack           func(info interface{})
 	textSelectElement  []TextSelectElement
-}
 
-var GameLogInstance = GameLog{lines: []*GameLogElement{}}
+	logBuf   *ebiten.Image
+	logBufOp *ebiten.DrawImageOptions
+}
 
 func (g *GameLog) GetLocationInfo(key string) interface{} {
 	for _, v := range g.textSelectElement {
@@ -139,6 +140,8 @@ func (g *GameLog) Update(x, y int) {
 }
 
 func (g *GameLog) Draw(screen *ebiten.Image) {
+	g.logBuf.Clear()
+
 	y := float64(ConfigInstance.LogY + ConfigInstance.LogHeight)
 
 	for i, e := range g.lines {
@@ -147,8 +150,10 @@ func (g *GameLog) Draw(screen *ebiten.Image) {
 		}
 
 		y -= float64(e.lineHeight)
-		e.Draw(screen, 0, y)
+		e.Draw(g.logBuf, 0, y)
 	}
+
+	screen.DrawImage(g.logBuf, g.logBufOp)
 }
 
 func (g *GameLog) AddString(text string) {

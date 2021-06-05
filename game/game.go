@@ -7,7 +7,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/painh/go2drpg/assetmanager"
-	"github.com/painh/go2drpg/game/scripts"
 	"log"
 	"strconv"
 )
@@ -18,15 +17,18 @@ var SPRITE_PATTERN = float64(16)
 
 var SCALE float64 = TILE_SIZE / SPRITE_PATTERN
 
+const GAME_UPDATE_STATUS_MAP_INTERACTION = 0
+const GAME_UPDATE_STATUS_WAIT_USER_LOG_INTERACTION = 1
+
 type Game struct {
+	status                 int
 	screenWidth            int
 	screenHeight           int
 	gameObjectManager      gameObjectManager
 	FlowControllerInstance FlowController
 	mapBuf                 *ebiten.Image
 	mapBufOp               *ebiten.DrawImageOptions
-	logBuf                 *ebiten.Image
-	logBufOp               *ebiten.DrawImageOptions
+	Log                    *GameLog
 	//itemOriginManager      ItemOriginManager
 	uimanager UIManager
 	cursor    Cursor
@@ -38,23 +40,12 @@ type Game struct {
 	waitOneFrame int64
 
 	player Player
+
+	music MusicManager
 }
 
 func (g *Game) WaitOneFrameOn() {
 	g.waitOneFrame = g.frameCnt
-}
-
-func (g *Game) WaitOneFrame() {
-	if g.waitOneFrame == 0 {
-		return
-	}
-
-	if g.frameCnt == g.waitOneFrame {
-		return
-	}
-
-	g.waitOneFrame = 0
-	g.FlowControllerInstance.ShiftFlowToEventLoop()
 }
 
 func (g *Game) Update() error {
@@ -63,11 +54,10 @@ func (g *Game) Update() error {
 	InputInstance.Update()
 	g.uimanager.Update()
 	g.cursor.Update()
-	GameLogInstance.Update(InputInstance.x, InputInstance.y)
+	g.Log.Update(InputInstance.x, InputInstance.y)
+	g.music.Update()
 
-	g.WaitOneFrame()
-
-	if !g.uimanager.Clicked {
+	if !g.uimanager.Clicked && g.status == GAME_UPDATE_STATUS_MAP_INTERACTION {
 		g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
 	}
 
@@ -103,7 +93,6 @@ func (g *Game) cameraToCenter() {
 
 func (g *Game) Draw(screen *ebiten.Image) {
 	g.mapBuf.Clear()
-	g.logBuf.Clear()
 
 	//g.mapBuf.Fill(color.RGBA{255, 0, 0, 255})
 	//g.logBuf.Fill(color.RGBA{0, 255, 0, 255})
@@ -112,10 +101,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//g.TextDialogInstance.Draw(screen)
 
-	GameLogInstance.Draw(g.logBuf)
+	g.Log.Draw(screen)
 
 	screen.DrawImage(g.mapBuf, g.mapBufOp)
-	screen.DrawImage(g.logBuf, g.logBufOp)
 	g.uimanager.Draw(screen)
 	g.cursor.Draw(screen)
 
@@ -131,30 +119,13 @@ var GameInstance Game
 
 func NewGame(screenWidth int, screenHeight int) *Game {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-
-	GameInstance = Game{}
-	GameInstance.Init(screenWidth, screenHeight)
-
-	scripts.Init(&GameInstance)
-
 	defaultFontInstance.LoadFont(ConfigInstance.FontPath, ConfigInstance.FontSize)
 
-	//GameInstance.itemOriginManager = ItemOriginManager{dict: make(map[int]*ItemOrigin)}
-	//GameInstance.itemOriginManager.LoadFromCSV("assets/items.csv")
-
-	SPRITE_PATTERN = float64(ConfigInstance.SpritePatternSize)
 	assetmanager.Load(ConfigInstance.TileSpriteFilename, "base")
 	assetmanager.MakePatternImages("base", int(SPRITE_PATTERN), int(SPRITE_PATTERN))
 
-	GameInstance.LoadMap(ConfigInstance.LocationList[0])
-
-	GameLogInstance.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
-
-	GameInstance.uimanager.Init()
-	GameInstance.cursor.Init()
-	GameInstance.player.Init()
-	GameInstance.player.ActiveLocation(ConfigInstance.LocationList[0].Name)
-	GameInstance.player.ActiveLocation(ConfigInstance.LocationList[1].Name)
+	GameInstance = Game{}
+	GameInstance.Init(screenWidth, screenHeight)
 
 	return &GameInstance
 }
@@ -169,12 +140,28 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 	g.mapBufOp = &ebiten.DrawImageOptions{}
 	g.mapBufOp.GeoM.Translate(float64(ConfigInstance.MapX), float64(ConfigInstance.MapY))
 
-	g.logBuf = ebiten.NewImage(ConfigInstance.LogWidth, ConfigInstance.LogHeight)
-	g.logBufOp = &ebiten.DrawImageOptions{}
-	g.logBufOp.GeoM.Translate(float64(ConfigInstance.LogX), float64(ConfigInstance.LogY))
-
 	g.FlowControllerInstance = FlowController{}
 	g.FlowControllerInstance.Init()
+
+	g.LoadMap(ConfigInstance.LocationList[0])
+
+	g.Log = &GameLog{lines: []*GameLogElement{}}
+	g.Log.logBuf = ebiten.NewImage(ConfigInstance.LogWidth, ConfigInstance.LogHeight)
+	g.Log.logBufOp = &ebiten.DrawImageOptions{}
+
+	g.Log.logBufOp.GeoM.Translate(float64(ConfigInstance.LogX), float64(ConfigInstance.LogY))
+
+	g.Log.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
+
+	g.uimanager.Init()
+	g.cursor.Init()
+	g.player.Init()
+	g.player.ActiveLocation(ConfigInstance.LocationList[0].Name)
+	g.player.ActiveLocation(ConfigInstance.LocationList[1].Name)
+
+	SPRITE_PATTERN = float64(ConfigInstance.SpritePatternSize)
+
+	g.status = GAME_UPDATE_STATUS_MAP_INTERACTION
 }
 
 func (g *Game) StartEvent() {
@@ -194,7 +181,7 @@ func (g *Game) EndEvent() {
 }
 
 func (g *Game) SetText(t string) {
-	GameLogInstance.Add(t)
+	g.Log.Add(t)
 }
 
 func (g *Game) TextSelect(t []string) {
@@ -203,7 +190,7 @@ func (g *Game) TextSelect(t []string) {
 }
 
 func (g *Game) GetLastSelectedIndex() int {
-	return GameLogInstance.LastSelectedIndex
+	return g.Log.LastSelectedIndex
 }
 
 func (g *Game) LoadMap(info LocationInfo) {
@@ -270,4 +257,6 @@ func (g *Game) LoadMap(info LocationInfo) {
 	g.gameObjectManager.Width = float64(m.Width) * TILE_SIZE
 	g.gameObjectManager.Height = float64(m.Height) * TILE_SIZE
 	g.cameraToCenter()
+
+	g.music.Init()
 }

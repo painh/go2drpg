@@ -79,9 +79,9 @@ func (u *UIManager) Init() {
 			for _, v := range GameInstance.player.activeLocation {
 				list = append(list, TextSelectElement{key: v.name, displayString: v.location.DisplayName, info: v})
 			}
-			GameLogInstance.TextSelect(list, func(info interface{}) {
+			GameInstance.Log.TextSelect(list, func(info interface{}) {
 				v := info.(Location)
-				GameLogInstance.AddWithPrompt("이동 ", v.location.DisplayName)
+				GameInstance.Log.AddWithPrompt("이동 ", v.location.DisplayName)
 				GameInstance.player.AddTime(20)
 				GameInstance.LoadMap(*v.location)
 			})

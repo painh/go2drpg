@@ -1,0 +1,11 @@
+---
+window_width: 800
+window_height: 600
+title: Go 2D RPG
+double_click_pixel_margin: 16
+double_click_ts_margin: 200
+font_path: assets/SCDream5.otf
+font_size: 16
+scenario:
+  - name: 시나리오1
+    config: assets/sc1/setting.yml

@@ -2,83 +2,94 @@ package game
 
 import (
 	"encoding/json"
+	"gopkg.in/yaml.v2"
 	"log"
+	"path/filepath"
 )
 
 type (
 	LocationInfo struct {
-		Name        string `json:"name"`
-		DisplayName string `json:"display_name"`
-		Filename    string `json:"filename"`
+		Name        string `yaml:"name" json:"name"`
+		DisplayName string `yaml:"display_name" json:"display_name"`
+		Filename    string `yaml:"filename" json:"filename"`
 	}
 	Config struct {
-		WindowWidth            int            `json:"window_width"`
-		WindowHeight           int            `json:"window_height"`
-		DoubleClickPixelMargin int            `json:"double_click_pixel_margin"`
-		DoubleClickTsMargin    int64          `json:"double_click_ts_margin"`
-		Title                  string         `json:"title"`
-		FontPath               string         `json:"font_path"`
-		FontSize               int            `json:"font_size"`
-		LogLines               int            `json:"log_lines"`
-		MapX                   int            `json:"map_x"`
-		MapY                   int            `json:"map_y"`
-		MapWidth               int            `json:"map_width"`
-		MapHeight              int            `json:"map_height"`
-		LogX                   int            `json:"log_x"`
-		LogY                   int            `json:"log_y"`
-		LogWidth               int            `json:"log_width"`
-		LogHeight              int            `json:"log_height"`
-		LineSpacing            int            `json:"line_spacing"`
-		BtnPersonX             int            `json:"btn_person_x"`
-		BtnPersonY             int            `json:"btn_person_y"`
-		BtnPersonWidth         int            `json:"btn_person_width"`
-		BtnPersonHeight        int            `json:"btn_person_height"`
-		BtnLocationX           int            `json:"btn_location_x"`
-		BtnLocationY           int            `json:"btn_location_y"`
-		BtnLocationWidth       int            `json:"btn_location_width"`
-		BtnLocationHeight      int            `json:"btn_location_height"`
-		BtnItemX               int            `json:"btn_item_x"`
-		BtnItemY               int            `json:"btn_item_y"`
-		BtnItemWidth           int            `json:"btn_item_width"`
-		BtnItemHeight          int            `json:"btn_item_height"`
-		CursorX                int            `json:"cursor_x"`
-		CursorY                int            `json:"cursor_y"`
-		StartTimeMin           int            `json:"start_time_min"`
-		BtnZoomoutX            int            `json:"btn_zoomout_x"`
-		BtnZoomoutY            int            `json:"btn_zoomout_y"`
-		BtnZoomoutWidth        int            `json:"btn_zoomout_width"`
-		BtnZoomoutHeight       int            `json:"btn_zoomout_height"`
-		BtnZoominX             int            `json:"btn_zoomin_x"`
-		BtnZoominY             int            `json:"btn_zoomin_y"`
-		BtnZoominWidth         int            `json:"btn_zoomin_width"`
-		BtnZoominHeight        int            `json:"btn_zoomin_height"`
-		BtnCenterX             int            `json:"btn_center_x"`
-		BtnCenterY             int            `json:"btn_center_y"`
-		BtnCenterWidth         int            `json:"btn_center_width"`
-		BtnCenterHeight        int            `json:"btn_center_height"`
-		SpritePatternSize      int            `json:"sprite_pattern_size"`
-		TileSpriteFilename     string         `json:"tile_sprite_filename"`
-		LocationList           []LocationInfo `json:"location_list"`
-		DefaultMoveMin         int            `json:"default_move_min"`
-		PlayerObjectName       string         `json:"player_object_name"`
-		ZoomStep               int            `json:"zoom_step"`
+		WindowWidth            int            `yaml:"window_width" json:"window_width"`
+		WindowHeight           int            `yaml:"window_height" json:"window_height"`
+		DoubleClickPixelMargin int            `yaml:"double_click_pixel_margin" json:"double_click_pixel_margin"`
+		DoubleClickTsMargin    int64          `yaml:"double_click_ts_margin" json:"double_click_ts_margin"`
+		Title                  string         `yaml:"title" json:"title"`
+		FontPath               string         `yaml:"font_path" json:"font_path"`
+		FontSize               int            `yaml:"font_size" json:"font_size"`
+		LogLines               int            `yaml:"log_lines" json:"log_lines"`
+		MapX                   int            `yaml:"map_x" json:"map_x"`
+		MapY                   int            `yaml:"map_y" json:"map_y"`
+		MapWidth               int            `yaml:"map_width" json:"map_width"`
+		MapHeight              int            `yaml:"map_height" json:"map_height"`
+		LogX                   int            `yaml:"log_x" json:"log_x"`
+		LogY                   int            `yaml:"log_y" json:"log_y"`
+		LogWidth               int            `yaml:"log_width" json:"log_width"`
+		LogHeight              int            `yaml:"log_height" json:"log_height"`
+		LineSpacing            int            `yaml:"line_spacing" json:"line_spacing"`
+		BtnPersonX             int            `yaml:"btn_person_x" json:"btn_person_x"`
+		BtnPersonY             int            `yaml:"btn_person_y" json:"btn_person_y"`
+		BtnPersonWidth         int            `yaml:"btn_person_width" json:"btn_person_width"`
+		BtnPersonHeight        int            `yaml:"btn_person_height" json:"btn_person_height"`
+		BtnLocationX           int            `yaml:"btn_location_x" json:"btn_location_x"`
+		BtnLocationY           int            `yaml:"btn_location_y" json:"btn_location_y"`
+		BtnLocationWidth       int            `yaml:"btn_location_width" json:"btn_location_width"`
+		BtnLocationHeight      int            `yaml:"btn_location_height" json:"btn_location_height"`
+		BtnItemX               int            `yaml:"btn_item_x" json:"btn_item_x"`
+		BtnItemY               int            `yaml:"btn_item_y" json:"btn_item_y"`
+		BtnItemWidth           int            `yaml:"btn_item_width" json:"btn_item_width"`
+		BtnItemHeight          int            `yaml:"btn_item_height" json:"btn_item_height"`
+		CursorX                int            `yaml:"cursor_x" json:"cursor_x"`
+		CursorY                int            `yaml:"cursor_y" json:"cursor_y"`
+		StartTimeMin           int            `yaml:"start_time_min" json:"start_time_min"`
+		BtnZoomoutX            int            `yaml:"btn_zoomout_x" json:"btn_zoomout_x"`
+		BtnZoomoutY            int            `yaml:"btn_zoomout_y" json:"btn_zoomout_y"`
+		BtnZoomoutWidth        int            `yaml:"btn_zoomout_width" json:"btn_zoomout_width"`
+		BtnZoomoutHeight       int            `yaml:"btn_zoomout_height" json:"btn_zoomout_height"`
+		BtnZoominX             int            `yaml:"btn_zoomin_x" json:"btn_zoomin_x"`
+		BtnZoominY             int            `yaml:"btn_zoomin_y" json:"btn_zoomin_y"`
+		BtnZoominWidth         int            `yaml:"btn_zoomin_width" json:"btn_zoomin_width"`
+		BtnZoominHeight        int            `yaml:"btn_zoomin_height" json:"btn_zoomin_height"`
+		BtnCenterX             int            `yaml:"btn_center_x" json:"btn_center_x"`
+		BtnCenterY             int            `yaml:"btn_center_y" json:"btn_center_y"`
+		BtnCenterWidth         int            `yaml:"btn_center_width" json:"btn_center_width"`
+		BtnCenterHeight        int            `yaml:"btn_center_height" json:"btn_center_height"`
+		SpritePatternSize      int            `yaml:"sprite_pattern_size" json:"sprite_pattern_size"`
+		TileSpriteFilename     string         `yaml:"tile_sprite_filename" json:"tile_sprite_filename"`
+		LocationList           []LocationInfo `yaml:"location_list" json:"location_list"`
+		DefaultMoveMin         int            `yaml:"default_move_min" json:"default_move_min"`
+		PlayerObjectName       string         `yaml:"player_object_name" json:"player_object_name"`
+		ZoomStep               int            `yaml:"zoom_step" json:"zoom_step"`
 	}
 )
 
 var ConfigInstance = Config{}
 
 func (c *Config) Load(filename string) {
-	b, err := ReadFile(filename) // articles.json 파일의 내용을 읽어서 바이트 슬라이스에 저장
+	b, err := ReadFile(filename) // articles.yaml:파일의 내용을  json 파일의 내용을 읽어서 바이트 슬라이스에 저장
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
 
-	err = json.Unmarshal(b, c)
+	var name = filepath.Ext(filename)
+
+	if name == ".json" {
+		err = json.Unmarshal(b, c)
+	} else {
+		err = yaml.Unmarshal([]byte(b), c)
+	}
+
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 
 	if err != nil {
 		log.Fatalln(err)
 		return
 	}
-
 }
