@@ -108,6 +108,9 @@ type MusicManager struct {
 }
 
 func (m *MusicManager) Init() {
+	if m.audioContext != nil {
+		return
+	}
 	m.audioContext = audio.NewContext(sampleRate)
 
 	//m.PlayNum(0)

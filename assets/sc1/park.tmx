@@ -1,26 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="13" height="15" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="2">
- <tileset firstgid="1" source="16x16_Jerom_CC-BY-SA-3.0.tsx"/>
- <layer id="1" name="base" width="13" height="15">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="48" tileheight="48" infinite="0" nextlayerid="5" nextobjectid="3">
+ <tileset firstgid="1" source="Serene_Village_48x48.tsx"/>
+ <tileset firstgid="856" source="New_Characters 48x96.tsx"/>
+ <layer id="1" name="base" width="10" height="10">
   <data encoding="csv">
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,53,51,51,51,51,54,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,53,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,54,51,51,51,51,
-51,51,54,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,51,
-51,51,51,51,53,51,51,51,51,51,51,51,51,
-51,51,51,51,51,51,51,51,51,51,51,51,53,
-53,51,51,51,51,51,51,51,51,51,51,51,51
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5,
+5,5,5,5,5,5,5,5,5,5
 </data>
  </layer>
- <objectgroup id="2" name="obj">
-  <object id="1" name="Player" type="player" gid="191" x="96" y="128" width="16" height="16"/>
+ <objectgroup id="2" name="obj"/>
+ <objectgroup id="3" name="char">
+  <object id="2" name="Player" gid="856" x="192" y="288" width="48" height="96"/>
  </objectgroup>
+ <objectgroup id="4" name="overchar"/>
 </map>
