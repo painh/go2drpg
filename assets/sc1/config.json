@@ -54,7 +54,7 @@
     {
       "name": "공원",
       "display_name": "공원",
-      "filename": "assets/sc1/park.tmx"
+      "filename": "assets/sc1/tile.tmx"
     }
   ],
   "default_move_min": 1,

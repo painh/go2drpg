@@ -18,13 +18,16 @@ type Input struct {
 	firstclick    bool
 	prevX         int
 	prevY         int
+	lbtnJustUp    bool
 }
 
 var InputInstance = Input{}
 
 func (d *Input) Update() {
+	prevPressed := d.pressed
 	d.pressed = false
 	d.clicked = false
+	d.lbtnJustUp = false
 
 	ids := ebiten.TouchIDs()
 	if ids == nil {
@@ -67,6 +70,10 @@ func (d *Input) Update() {
 	d.LastX = d.x
 	d.LastY = d.y
 	d.LastClickTS = now
+
+	if d.pressed == false && prevPressed {
+		d.lbtnJustUp = true
+	}
 }
 
 func (d *Input) DBClick() bool {
@@ -75,6 +82,10 @@ func (d *Input) DBClick() bool {
 
 func (d *Input) LBtnPressed() bool {
 	return d.pressed
+}
+
+func (d *Input) LBtnJustUp() bool {
+	return d.lbtnJustUp
 }
 
 func (d *Input) LBtnClicked() bool {
@@ -89,5 +100,4 @@ func (d *Input) RBtnClicked() bool {
 	}
 
 	return ret
-
 }

@@ -3,18 +3,20 @@ package game
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/painh/go2drpg/assetmanager"
-	"math"
+	"sort"
 )
 
 type gameObjectManager struct {
 	Width, Height float64
 	tiles         []*GameSprite
 	objects       []*GameObject
+	overObjects   []*GameObject
 }
 
 func (g *gameObjectManager) Clear() {
 	g.tiles = []*GameSprite{}
 	g.objects = []*GameObject{}
+	g.overObjects = []*GameObject{}
 }
 
 func (g *gameObjectManager) Draw(screen *ebiten.Image) {
@@ -25,6 +27,10 @@ func (g *gameObjectManager) Draw(screen *ebiten.Image) {
 	for _, e := range g.objects {
 		e.Draw(screen)
 	}
+
+	for _, e := range g.overObjects {
+		e.Draw(screen)
+	}
 }
 
 func (g *gameObjectManager) Refresh() {
@@ -33,6 +39,10 @@ func (g *gameObjectManager) Refresh() {
 	}
 
 	for _, e := range g.objects {
+		e.Refresh()
+	}
+
+	for _, e := range g.overObjects {
 		e.Refresh()
 	}
 }
@@ -90,20 +100,45 @@ func (g *gameObjectManager) Update(x, y int) {
 		}
 	}
 
-	_, wy := ebiten.Wheel()
-	if wy != 0 {
-		SettingConfigInstance.RenderTileSize = math.Max(1, SettingConfigInstance.RenderTileSize+wy)
-		GameInstance.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
+	//_, wy := ebiten.Wheel()
+	//if wy != 0 {
+	//	SettingConfigInstance.RenderTileSize = math.Max(1, SettingConfigInstance.RenderTileSize+wy)
+	//	GameInstance.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
+	//
+	//	GameInstance.cameraToCenter()
+	//
+	//	//CameraInstance.Refresh()
+	//	//g.Refresh()
+	//}
 
-		GameInstance.cameraToCenter()
-
-		//CameraInstance.Refresh()
-		//g.Refresh()
-	}
+	moved := false
 
 	for _, e := range g.objects {
+		prevX := e.x
+		prevY := e.y
+		e.Update()
+
+		if prevX != e.x || prevY != e.y {
+			moved = true
+		}
+	}
+
+	if moved {
+		g.SortYPos()
+	}
+
+	for _, e := range g.overObjects {
 		e.Update()
 	}
+}
+
+func (g *gameObjectManager) SortYPos() {
+	sort.Slice(g.objects, func(i, j int) bool {
+		if g.objects[i].y < g.objects[j].y {
+			return true
+		}
+		return false
+	})
 }
 
 func (g *gameObjectManager) GetSelectedList() []*GameObject {
@@ -125,7 +160,7 @@ func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, img *asse
 	g.tiles = append(g.tiles, obj)
 }
 
-func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, img *assetmanager.ImageResource, objName string, zindex float64) *GameObject {
+func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, img *assetmanager.ImageResource, objName string, zindex float64, isOverObject bool) *GameObject {
 	obj := &GameObject{GameSprite: GameSprite{x: x, y: y, screenX: 0, screenY: 0, width: width, height: height, selected: false, img: img, op: &ebiten.DrawImageOptions{}},
 		cdmanager:   CooldownManager{dict: make(map[string]*Cooldown)},
 		objName:     objName,
@@ -140,7 +175,12 @@ func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, img *asse
 	}
 
 	obj.Init()
-	g.objects = append(g.objects, obj)
+
+	if isOverObject {
+		g.overObjects = append(g.overObjects, obj)
+	} else {
+		g.objects = append(g.objects, obj)
+	}
 
 	return obj
 }

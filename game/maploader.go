@@ -124,7 +124,7 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 			image := m.GetTileImage(tmx.GlobalID(v.GlobalID))
 
-			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 0)
+			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 0, false)
 		}
 	} else {
 		log.Fatal("cant find object layer : name {obj}")
@@ -143,7 +143,7 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 			image := m.GetTileImage(tmx.GlobalID(v.GlobalID))
 
-			obj := g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height/2, image, v.Name, 0)
+			obj := g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height/2, image, v.Name, 0, false)
 			obj.offsetY = -1
 			obj.Refresh()
 		}
@@ -163,7 +163,7 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 			image := m.GetTileImage(tmx.GlobalID(v.GlobalID))
 
-			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 1)
+			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 1, true)
 		}
 	} else {
 		log.Fatal("cant find object layer : name {overchar}")
