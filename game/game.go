@@ -2,20 +2,10 @@ package game
 
 import (
 	"fmt"
-	"github.com/fardog/tmx"
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"github.com/painh/go2drpg/assetmanager"
 	"log"
-	"strconv"
 )
-
-var TILE_SIZE float64 = 32
-
-var SPRITE_PATTERN = float64(16)
-
-var SCALE float64 = TILE_SIZE / SPRITE_PATTERN
 
 const GAME_UPDATE_STATUS_MAP_INTERACTION = 0
 const GAME_UPDATE_STATUS_WAIT_USER_LOG_INTERACTION = 1
@@ -42,6 +32,10 @@ type Game struct {
 	player Player
 
 	music MusicManager
+
+	scale float64
+
+	mapLoader MapLoader
 }
 
 func (g *Game) WaitOneFrameOn() {
@@ -83,9 +77,9 @@ func (g *Game) cameraToCenter() {
 			x += list[i].x
 			y += list[i].y
 		}
-		x = x / float64(len(list)) * TILE_SIZE
-		y = y / float64(len(list)) * TILE_SIZE
-		CameraInstance.SetXY(x-float64(ConfigInstance.MapWidth/2)+TILE_SIZE/2, y-float64(ConfigInstance.MapHeight/2)+TILE_SIZE/2)
+		x = x / float64(len(list)) * SettingConfigInstance.RenderTileSize
+		y = y / float64(len(list)) * SettingConfigInstance.RenderTileSize
+		CameraInstance.SetXY(x-float64(SettingConfigInstance.MapWidth/2)+SettingConfigInstance.RenderTileSize/2, y-float64(SettingConfigInstance.MapHeight/2)+SettingConfigInstance.RenderTileSize/2)
 
 		g.gameObjectManager.Refresh()
 	}
@@ -119,10 +113,7 @@ var GameInstance Game
 
 func NewGame(screenWidth int, screenHeight int) *Game {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
-	defaultFontInstance.LoadFont(ConfigInstance.FontPath, ConfigInstance.FontSize)
-
-	assetmanager.Load(ConfigInstance.TileSpriteFilename, "base")
-	assetmanager.MakePatternImages("base", int(SPRITE_PATTERN), int(SPRITE_PATTERN))
+	defaultFontInstance.LoadFont(SettingConfigInstance.FontPath, SettingConfigInstance.FontSize)
 
 	GameInstance = Game{}
 	GameInstance.Init(screenWidth, screenHeight)
@@ -136,32 +127,30 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 
 	g.gameObjectManager = gameObjectManager{}
 
-	g.mapBuf = ebiten.NewImage(ConfigInstance.MapWidth, ConfigInstance.MapHeight)
+	g.mapBuf = ebiten.NewImage(SettingConfigInstance.MapWidth, SettingConfigInstance.MapHeight)
 	g.mapBufOp = &ebiten.DrawImageOptions{}
-	g.mapBufOp.GeoM.Translate(float64(ConfigInstance.MapX), float64(ConfigInstance.MapY))
+	g.mapBufOp.GeoM.Translate(float64(SettingConfigInstance.MapX), float64(SettingConfigInstance.MapY))
 
 	g.FlowControllerInstance = FlowController{}
 	g.FlowControllerInstance.Init()
 
-	g.LoadMap(ConfigInstance.LocationList[0])
-
+	g.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
+	g.LoadMap(SettingConfigInstance.LocationList[0])
 	g.Log = &GameLog{lines: []*GameLogElement{}}
-	g.Log.logBuf = ebiten.NewImage(ConfigInstance.LogWidth, ConfigInstance.LogHeight)
+	g.Log.logBuf = ebiten.NewImage(SettingConfigInstance.LogWidth, SettingConfigInstance.LogHeight)
 	g.Log.logBufOp = &ebiten.DrawImageOptions{}
-
-	g.Log.logBufOp.GeoM.Translate(float64(ConfigInstance.LogX), float64(ConfigInstance.LogY))
+	g.Log.logBufOp.GeoM.Translate(float64(SettingConfigInstance.LogX), float64(SettingConfigInstance.LogY))
 
 	g.Log.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
 
 	g.uimanager.Init()
 	g.cursor.Init()
 	g.player.Init()
-	g.player.ActiveLocation(ConfigInstance.LocationList[0].Name)
-	g.player.ActiveLocation(ConfigInstance.LocationList[1].Name)
-
-	SPRITE_PATTERN = float64(ConfigInstance.SpritePatternSize)
+	g.player.ActiveLocation(SettingConfigInstance.LocationList[0].Name)
+	g.player.ActiveLocation(SettingConfigInstance.LocationList[1].Name)
 
 	g.status = GAME_UPDATE_STATUS_MAP_INTERACTION
+
 }
 
 func (g *Game) StartEvent() {
@@ -194,68 +183,10 @@ func (g *Game) GetLastSelectedIndex() int {
 }
 
 func (g *Game) LoadMap(info LocationInfo) {
-	file, err := ebitenutil.OpenFile(info.Filename)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	g.mapLoader.Load(info.Filename, g)
 
-	defer file.Close()
-
-	m, err := tmx.Decode(file)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	if m == nil {
-		log.Fatal("map was nil")
-	}
-
-	g.gameObjectManager.Clear()
-
-	if base := m.LayerWithName("base"); base != nil {
-		trs, err := base.TileGlobalRefs()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		g.mapWidth = float64(m.Width)
-		g.mapHeight = float64(m.Height)
-
-		if l, e := len(trs), m.Width*m.Height; l != e {
-			log.Fatalf("expected tiles of length %v, got %v", e, l)
-		}
-
-		tds, err := base.TileDefs(m.TileSets)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		cnt := 0
-
-		for y := 0; y < base.Height; y++ {
-			for x := 0; x < base.Width; x++ {
-				g.gameObjectManager.GameSpriteAdd(float64(x), float64(y), SPRITE_PATTERN, SPRITE_PATTERN, "base_"+strconv.Itoa(int(tds[cnt].ID)))
-				cnt++
-			}
-		}
-	}
-
-	if objects := m.ObjectGroupWithName("obj"); objects != nil {
-
-		for _, v := range objects.Objects {
-			x := v.X / SPRITE_PATTERN
-			y := v.Y / SPRITE_PATTERN
-
-			if v.GlobalID != 0 { //GlobalID가 없다면, 이미지가 선택되지 않은 충돌 사각형으로 생각하여 원본을 씀. Tiled가 오브젝트일때는 y좌표를 + 1해서 주는 방식이라 후처리를 해야함.
-				y--
-			}
-
-			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, "base_"+strconv.Itoa(int(v.GlobalID-1)), v.Name)
-		}
-	}
-
-	g.gameObjectManager.Width = float64(m.Width) * TILE_SIZE
-	g.gameObjectManager.Height = float64(m.Height) * TILE_SIZE
+	g.gameObjectManager.Width = float64(g.mapLoader.Width) * SettingConfigInstance.RenderTileSize
+	g.gameObjectManager.Height = float64(g.mapLoader.Height) * SettingConfigInstance.RenderTileSize
 	g.cameraToCenter()
 
 	g.music.Init()

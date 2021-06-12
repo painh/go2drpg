@@ -94,13 +94,19 @@ func (t *TilePos) PathNeighbors() []astar.Pather {
 			continue
 		}
 
+		if v[0] < 0 || v[1] < 0 ||
+			v[0] >= GameInstance.mapWidth ||
+			v[1] >= GameInstance.mapHeight {
+			continue
+		}
+
 		if tileManagerInstance.IsToPos(v[0], v[1]) { //목적지는 언제나 갈수 있음.
 			tile := tileManagerInstance.Get(v[0], v[1])
 			ret = append(ret, tile)
 			continue
 		}
 
-		obj := GameInstance.gameObjectManager.CheckGameObjectPosition(v[0]*SPRITE_PATTERN, v[1]*SPRITE_PATTERN, tileManagerInstance.currentObject.width, tileManagerInstance.currentObject.height, tileManagerInstance.currentObject)
+		obj := GameInstance.gameObjectManager.CheckGameObjectPosition(v[0]*SettingConfigInstance.RealTileSize, v[1]*SettingConfigInstance.RealTileSize, tileManagerInstance.currentObject.zindex, tileManagerInstance.currentObject.width, tileManagerInstance.currentObject.height, tileManagerInstance.currentObject)
 		if obj == nil {
 			tile := tileManagerInstance.Get(v[0], v[1])
 			ret = append(ret, tile)
@@ -113,7 +119,7 @@ func (t *TilePos) PathNeighbors() []astar.Pather {
 }
 
 func (t *TilePos) PathNeighborCost(to astar.Pather) float64 {
-	return TILE_SIZE //이동비용은 항상 1
+	return SettingConfigInstance.RealTileSize //이동비용은 항상 1
 }
 
 func (t *TilePos) PathEstimatedCost(to astar.Pather) float64 {

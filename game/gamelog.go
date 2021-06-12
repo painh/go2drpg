@@ -30,9 +30,9 @@ func (g *GameLogElement) Set(text string) {
 		newText += string(v)
 		rect := defaultFontInstance.BoundString(newText)
 		width := rect.Dx()
-		if width >= ConfigInstance.LogWidth {
+		if width >= SettingConfigInstance.LogWidth {
 			rect := defaultFontInstance.BoundString(prevText)
-			y += rect.Dy() + ConfigInstance.LineSpacing
+			y += rect.Dy() + SettingConfigInstance.LineSpacing
 
 			resultText = prevText + "\n"
 			prevText = newText
@@ -42,18 +42,18 @@ func (g *GameLogElement) Set(text string) {
 	}
 	resultText += newText
 	rect := defaultFontInstance.BoundString(newText)
-	y += rect.Dy() + ConfigInstance.LineSpacing
-	y += ConfigInstance.LineSpacing
+	y += rect.Dy() + SettingConfigInstance.LineSpacing
+	y += SettingConfigInstance.LineSpacing
 
 	strs := strings.Split(resultText, "\n")
 
 	g.lineHeight = float64(y)
-	g.imageBuf = ebiten.NewImage(ConfigInstance.LogWidth, int(g.lineHeight))
+	g.imageBuf = ebiten.NewImage(SettingConfigInstance.LogWidth, int(g.lineHeight))
 
 	y = 0
 	for _, v := range strs {
 		rect := defaultFontInstance.BoundString(v)
-		y += rect.Dy() + ConfigInstance.LineSpacing
+		y += rect.Dy() + SettingConfigInstance.LineSpacing
 		defaultFontInstance.Draw(g.imageBuf, v, 0, y)
 	}
 
@@ -69,7 +69,7 @@ func (g *GameLogElement) Draw(screen *ebiten.Image, x, y float64) {
 	screen.DrawImage(g.imageBuf, op)
 
 	if g.selected {
-		DrawRect(screen, x, y, float64(ConfigInstance.LogWidth), g.lineHeight, color.White)
+		DrawRect(screen, x, y, float64(SettingConfigInstance.LogWidth), g.lineHeight, color.White)
 	}
 }
 
@@ -104,18 +104,18 @@ func (g *GameLog) Update(x, y int) {
 		return
 	}
 
-	if !(x >= ConfigInstance.LogX && x <= ConfigInstance.LogX+ConfigInstance.LogWidth &&
-		y >= ConfigInstance.LogY && y <= ConfigInstance.LogY+ConfigInstance.LogHeight) {
+	if !(x >= SettingConfigInstance.LogX && x <= SettingConfigInstance.LogX+SettingConfigInstance.LogWidth &&
+		y >= SettingConfigInstance.LogY && y <= SettingConfigInstance.LogY+SettingConfigInstance.LogHeight) {
 		return
 	}
 
-	//cursorX := float64(x - ConfigInstance.LogX)
-	cursorY := float64(y - ConfigInstance.LogY)
+	//cursorX := float64(x - SettingConfigInstance.LogX)
+	cursorY := float64(y - SettingConfigInstance.LogY)
 
-	lineY := float64(ConfigInstance.LogY + ConfigInstance.LogHeight)
+	lineY := float64(SettingConfigInstance.LogY + SettingConfigInstance.LogHeight)
 
 	for i, e := range g.lines {
-		if i >= ConfigInstance.LogLines {
+		if i >= SettingConfigInstance.LogLines {
 			break
 		}
 
@@ -142,10 +142,10 @@ func (g *GameLog) Update(x, y int) {
 func (g *GameLog) Draw(screen *ebiten.Image) {
 	g.logBuf.Clear()
 
-	y := float64(ConfigInstance.LogY + ConfigInstance.LogHeight)
+	y := float64(SettingConfigInstance.LogY + SettingConfigInstance.LogHeight)
 
 	for i, e := range g.lines {
-		if i >= ConfigInstance.LogLines {
+		if i >= SettingConfigInstance.LogLines {
 			break
 		}
 
@@ -163,7 +163,7 @@ func (g *GameLog) AddString(text string) {
 
 	g.lines = append([]*GameLogElement{&l}, g.lines...)
 
-	if len(g.lines) > ConfigInstance.LogLines {
+	if len(g.lines) > SettingConfigInstance.LogLines {
 		g.lines = g.lines[:len(g.lines)-1]
 	}
 }
@@ -197,7 +197,7 @@ func (g *GameLog) TextSelect(t []TextSelectElement, callBack func(info interface
 
 		g.lines = append([]*GameLogElement{&l}, g.lines...)
 
-		if len(g.lines) > ConfigInstance.LogLines {
+		if len(g.lines) > SettingConfigInstance.LogLines {
 			g.lines = g.lines[:len(g.lines)-1]
 		}
 	}

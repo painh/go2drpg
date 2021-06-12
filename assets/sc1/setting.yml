@@ -1,6 +1,8 @@
 ---
 window_width: 800
 window_height: 600
+render_tile_size: 48
+real_tile_size: 48
 title: Go 2D RPG
 double_click_pixel_margin: 16
 double_click_ts_margin: 200
@@ -43,15 +45,14 @@ btn_center_x: 100
 btn_center_y: 570
 btn_center_width: 50
 btn_center_height: 30
-sprite_pattern_size: 16
-tile_sprite_filename: assets/common/16x16_Jerom_CC-BY-SA-3.0.png
+work_folder: assets/sc1/
 location_list:
   - name: 사무실
     display_name: 사무실
-    filename: assets/sc1/tile.tmx
+    filename: multitileset.tmx
   - name: 공원
     display_name: 공원
-    filename: assets/sc1/park.tmx
+    filename: park.tmx
 default_move_min: 1
 player_object_name: Player
 zoom_step: 4

@@ -7,10 +7,11 @@ import (
 )
 
 type GameSprite struct {
-	x      float64
-	y      float64
-	width  float64
-	height float64
+	x       float64
+	y       float64
+	width   float64
+	height  float64
+	offsetY float64
 
 	screenX      float64
 	screenY      float64
@@ -46,13 +47,13 @@ func (g *GameSprite) clickCheck(x, y float64) bool {
 
 func (g *GameSprite) Refresh() {
 	g.op = &ebiten.DrawImageOptions{}
-	g.screenX = (g.x * TILE_SIZE) - CameraInstance.x
-	g.screenY = (g.y * TILE_SIZE) - CameraInstance.y
+	g.screenX = (g.x * SettingConfigInstance.RenderTileSize) - CameraInstance.x
+	g.screenY = ((g.y + g.offsetY) * SettingConfigInstance.RenderTileSize) - CameraInstance.y
 
-	g.op.GeoM.Translate(g.screenX/SCALE, g.screenY/SCALE)
-	g.op.GeoM.Scale(SCALE, SCALE)
-	g.screenWidth = g.width * SCALE
-	g.screenHeight = g.height * SCALE
+	g.op.GeoM.Translate(g.screenX/GameInstance.scale, g.screenY/GameInstance.scale)
+	g.op.GeoM.Scale(GameInstance.scale, GameInstance.scale)
+	g.screenWidth = g.width * GameInstance.scale
+	g.screenHeight = g.height * GameInstance.scale
 }
 
 func (g *GameSprite) SetXY(x, y float64) {

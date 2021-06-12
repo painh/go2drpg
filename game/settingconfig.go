@@ -13,11 +13,13 @@ type (
 		DisplayName string `yaml:"display_name" json:"display_name"`
 		Filename    string `yaml:"filename" json:"filename"`
 	}
-	Config struct {
+	SettingConfig struct {
 		WindowWidth            int            `yaml:"window_width" json:"window_width"`
 		WindowHeight           int            `yaml:"window_height" json:"window_height"`
 		DoubleClickPixelMargin int            `yaml:"double_click_pixel_margin" json:"double_click_pixel_margin"`
 		DoubleClickTsMargin    int64          `yaml:"double_click_ts_margin" json:"double_click_ts_margin"`
+		RenderTileSize         float64        `yaml:"render_tile_size" json:"render_tile_size"`
+		RealTileSize           float64        `yaml:"real_tile_size" json:"real_tile_size"`
 		Title                  string         `yaml:"title" json:"title"`
 		FontPath               string         `yaml:"font_path" json:"font_path"`
 		FontSize               int            `yaml:"font_size" json:"font_size"`
@@ -58,8 +60,7 @@ type (
 		BtnCenterY             int            `yaml:"btn_center_y" json:"btn_center_y"`
 		BtnCenterWidth         int            `yaml:"btn_center_width" json:"btn_center_width"`
 		BtnCenterHeight        int            `yaml:"btn_center_height" json:"btn_center_height"`
-		SpritePatternSize      int            `yaml:"sprite_pattern_size" json:"sprite_pattern_size"`
-		TileSpriteFilename     string         `yaml:"tile_sprite_filename" json:"tile_sprite_filename"`
+		WorkFolder             string         `yaml:"work_folder" json:"work_folder"`
 		LocationList           []LocationInfo `yaml:"location_list" json:"location_list"`
 		DefaultMoveMin         int            `yaml:"default_move_min" json:"default_move_min"`
 		PlayerObjectName       string         `yaml:"player_object_name" json:"player_object_name"`
@@ -67,9 +68,9 @@ type (
 	}
 )
 
-var ConfigInstance = Config{}
+var SettingConfigInstance = SettingConfig{}
 
-func (c *Config) Load(filename string) {
+func (c *SettingConfig) Load(filename string) {
 	b, err := ReadFile(filename) // articles.yaml:파일의 내용을  json 파일의 내용을 읽어서 바이트 슬라이스에 저장
 	if err != nil {
 		log.Fatalln(err)

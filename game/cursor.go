@@ -15,8 +15,8 @@ type Cursor struct {
 }
 
 func (c *Cursor) Init() {
-	c.x = float64(ConfigInstance.CursorX)
-	c.y = float64(ConfigInstance.CursorY)
+	c.x = float64(SettingConfigInstance.CursorX)
+	c.y = float64(SettingConfigInstance.CursorY)
 
 }
 
@@ -45,5 +45,5 @@ func (c *Cursor) Update() {
 }
 
 func (c *Cursor) Draw(dst *ebiten.Image) {
-	defaultFontInstance.Draw(dst, c.prompt, ConfigInstance.CursorX, ConfigInstance.CursorY)
+	defaultFontInstance.Draw(dst, c.prompt, SettingConfigInstance.CursorX, SettingConfigInstance.CursorY)
 }

@@ -14,11 +14,11 @@ type Player struct {
 
 func (p *Player) Init() {
 	p.activeLocation = make(map[string]Location)
-	p.curTimeMin = ConfigInstance.StartTimeMin
+	p.curTimeMin = SettingConfigInstance.StartTimeMin
 }
 func (p *Player) ActiveLocation(name string) {
-	for i := 0; i < len(ConfigInstance.LocationList); i++ {
-		v := &ConfigInstance.LocationList[i]
+	for i := 0; i < len(SettingConfigInstance.LocationList); i++ {
+		v := &SettingConfigInstance.LocationList[i]
 		if v.Name == name {
 			p.activeLocation[name] = Location{name: name, location: v}
 		}

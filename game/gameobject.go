@@ -10,6 +10,7 @@ type GameObject struct {
 	GameSprite
 	cdmanager CooldownManager
 	objName   string
+	zindex    float64
 
 	movePosList []*TilePos
 }
@@ -49,7 +50,7 @@ func (g *GameObject) Update() {
 	if g.cdmanager.IsCooldownOver("move", 500) {
 		g.cdmanager.ActiveCooldown("move")
 		tile := g.movePosList[0]
-		obj := GameInstance.gameObjectManager.CheckGameObjectPosition(tile.x*SPRITE_PATTERN, tile.y*SPRITE_PATTERN, g.width, g.height, g)
+		obj := GameInstance.gameObjectManager.CheckGameObjectPosition(tile.x*SettingConfigInstance.RealTileSize, tile.y*SettingConfigInstance.RealTileSize, g.zindex, g.width, g.height, g)
 		if obj != nil {
 			if len(g.movePosList) == 1 {
 				//도착점이면 이벤트 발생
@@ -66,17 +67,17 @@ func (g *GameObject) Update() {
 		g.movePosList = g.movePosList[1:]
 		g.GameSprite.SetXY(tile.x, tile.y)
 
-		if g.objName == ConfigInstance.PlayerObjectName {
-			GameInstance.player.AddTime(ConfigInstance.DefaultMoveMin)
+		if g.objName == SettingConfigInstance.PlayerObjectName {
+			GameInstance.player.AddTime(SettingConfigInstance.DefaultMoveMin)
 		}
 	}
 }
 
 func (g *GameObject) CheckCollision(x, y, width, height float64) bool {
-	if g.x*SPRITE_PATTERN < x+width &&
-		g.x*SPRITE_PATTERN+g.width > x &&
-		g.y*SPRITE_PATTERN < y+height &&
-		g.y*SPRITE_PATTERN+g.height > y {
+	if g.x*SettingConfigInstance.RealTileSize < x+width &&
+		g.x*SettingConfigInstance.RealTileSize+g.width > x &&
+		g.y*SettingConfigInstance.RealTileSize < y+height &&
+		g.y*SettingConfigInstance.RealTileSize+g.height > y {
 		return true
 	}
 
@@ -86,9 +87,9 @@ func (g *GameObject) CheckCollision(x, y, width, height float64) bool {
 func (g *GameObject) Draw(screen *ebiten.Image) {
 	g.GameSprite.Draw(screen)
 
-	DrawRect(screen, g.screenX, g.screenY, g.screenWidth, g.screenHeight, color.RGBA{B: 255, A: 255})
+	//DrawRect(screen, g.screenX, g.screenY, g.screenWidth, g.screenHeight, color.RGBA{B: 255, A: 255})
 
 	for _, v := range g.movePosList {
-		DrawRect(screen, v.x*TILE_SIZE-CameraInstance.x, v.y*TILE_SIZE-CameraInstance.y, TILE_SIZE, TILE_SIZE, color.RGBA{0, 255, 0, 255})
+		DrawRect(screen, v.x*SettingConfigInstance.RenderTileSize-CameraInstance.x, v.y*SettingConfigInstance.RenderTileSize-CameraInstance.y, SettingConfigInstance.RenderTileSize, SettingConfigInstance.RenderTileSize, color.RGBA{0, 255, 0, 255})
 	}
 }

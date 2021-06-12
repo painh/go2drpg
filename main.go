@@ -22,8 +22,9 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	game.EntryConfigInstance.Load("config.yml")
-	game.ConfigInstance.Load(game.EntryConfigInstance.Scenario[0].Config)
+	game.SettingConfigInstance.Load(game.EntryConfigInstance.Scenario[0].Config)
 
 	g := game.NewGame(game.EntryConfigInstance.WindowWidth, game.EntryConfigInstance.WindowHeight)
 	if err := ebiten.RunGame(g); err != nil {

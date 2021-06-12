@@ -48,32 +48,32 @@ type UIManager struct {
 func (u *UIManager) Init() {
 	u.uilist = []UIWidget{}
 
-	u.AddButton(float64(ConfigInstance.BtnZoomoutX), float64(ConfigInstance.BtnZoomoutY),
-		float64(ConfigInstance.BtnZoomoutWidth), float64(ConfigInstance.BtnZoomoutHeight), "줌아웃", func() {
-			TILE_SIZE = math.Max(1, TILE_SIZE+float64(ConfigInstance.ZoomStep))
-			SCALE = TILE_SIZE / SPRITE_PATTERN
+	u.AddButton(float64(SettingConfigInstance.BtnZoomoutX), float64(SettingConfigInstance.BtnZoomoutY),
+		float64(SettingConfigInstance.BtnZoomoutWidth), float64(SettingConfigInstance.BtnZoomoutHeight), "줌아웃", func() {
+			SettingConfigInstance.RenderTileSize = math.Max(1, SettingConfigInstance.RenderTileSize+float64(SettingConfigInstance.ZoomStep))
+			GameInstance.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
 			GameInstance.cameraToCenter()
 		})
 
-	u.AddButton(float64(ConfigInstance.BtnZoominX), float64(ConfigInstance.BtnZoominY),
-		float64(ConfigInstance.BtnZoominWidth), float64(ConfigInstance.BtnZoominHeight), "줌인", func() {
-			TILE_SIZE = math.Max(1, TILE_SIZE-float64(ConfigInstance.ZoomStep))
-			SCALE = TILE_SIZE / SPRITE_PATTERN
+	u.AddButton(float64(SettingConfigInstance.BtnZoominX), float64(SettingConfigInstance.BtnZoominY),
+		float64(SettingConfigInstance.BtnZoominWidth), float64(SettingConfigInstance.BtnZoominHeight), "줌인", func() {
+			SettingConfigInstance.RenderTileSize = math.Max(1, SettingConfigInstance.RenderTileSize-float64(SettingConfigInstance.ZoomStep))
+			GameInstance.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
 			GameInstance.cameraToCenter()
 		})
 
-	u.AddButton(float64(ConfigInstance.BtnCenterX), float64(ConfigInstance.BtnCenterY),
-		float64(ConfigInstance.BtnCenterWidth), float64(ConfigInstance.BtnCenterHeight), "중앙", func() {
+	u.AddButton(float64(SettingConfigInstance.BtnCenterX), float64(SettingConfigInstance.BtnCenterY),
+		float64(SettingConfigInstance.BtnCenterWidth), float64(SettingConfigInstance.BtnCenterHeight), "중앙", func() {
 			GameInstance.cameraToCenter()
 		})
 
-	u.AddButton(float64(ConfigInstance.BtnPersonX), float64(ConfigInstance.BtnPersonY),
-		float64(ConfigInstance.BtnPersonWidth), float64(ConfigInstance.BtnPersonHeight), "인물 목록", func() {
+	u.AddButton(float64(SettingConfigInstance.BtnPersonX), float64(SettingConfigInstance.BtnPersonY),
+		float64(SettingConfigInstance.BtnPersonWidth), float64(SettingConfigInstance.BtnPersonHeight), "인물 목록", func() {
 			fmt.Println("사람목록")
 		})
 
-	u.AddButton(float64(ConfigInstance.BtnLocationX), float64(ConfigInstance.BtnLocationY),
-		float64(ConfigInstance.BtnLocationWidth), float64(ConfigInstance.BtnLocationHeight), "장소 목록", func() {
+	u.AddButton(float64(SettingConfigInstance.BtnLocationX), float64(SettingConfigInstance.BtnLocationY),
+		float64(SettingConfigInstance.BtnLocationWidth), float64(SettingConfigInstance.BtnLocationHeight), "장소 목록", func() {
 			var list []TextSelectElement = []TextSelectElement{}
 
 			for _, v := range GameInstance.player.activeLocation {
@@ -86,8 +86,8 @@ func (u *UIManager) Init() {
 				GameInstance.LoadMap(*v.location)
 			})
 		})
-	u.AddButton(float64(ConfigInstance.BtnItemX), float64(ConfigInstance.BtnItemY),
-		float64(ConfigInstance.BtnItemWidth), float64(ConfigInstance.BtnItemHeight), "아이템 목록", func() {
+	u.AddButton(float64(SettingConfigInstance.BtnItemX), float64(SettingConfigInstance.BtnItemY),
+		float64(SettingConfigInstance.BtnItemWidth), float64(SettingConfigInstance.BtnItemHeight), "아이템 목록", func() {
 			fmt.Println("아이템 목록")
 		})
 }

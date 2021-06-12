@@ -11,6 +11,7 @@ import (
 type ImageResource struct {
 	Img      *ebiten.Image
 	Filename string
+	FullName string
 	Pattern  bool
 }
 
@@ -56,6 +57,16 @@ func Get(name string) *ImageResource {
 	return v
 }
 
+func GetWithName(name string, num int) *ImageResource {
+	fullname := MakeName(name, num)
+
+	return Get(fullname)
+}
+
+func MakeName(name string, num int) string {
+	return name + ":" + strconv.Itoa(num)
+}
+
 func MakePatternImages(name string, patternWidth, patternHeight int) {
 	origin := Get(name)
 
@@ -65,7 +76,9 @@ func MakePatternImages(name string, patternWidth, patternHeight int) {
 	for y := 0; y < height; y += patternHeight {
 		for x := 0; x < width; x += patternWidth {
 			img := makePatternImage(origin, x, y, patternWidth, patternHeight)
-			Instance.dict[name+"_"+strconv.Itoa(cnt)] = img
+			fullname := MakeName(name, cnt)
+			img.FullName = fullname
+			Instance.dict[fullname] = img
 			cnt++
 		}
 	}

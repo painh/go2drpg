@@ -58,8 +58,8 @@ func (g *gameObjectManager) Update(x, y int) {
 	objFound := false
 	inbound := false
 
-	if x >= ConfigInstance.MapX && y >= ConfigInstance.MapY &&
-		x < ConfigInstance.MapWidth && y < ConfigInstance.MapHeight {
+	if x >= SettingConfigInstance.MapX && y >= SettingConfigInstance.MapY &&
+		x < SettingConfigInstance.MapWidth && y < SettingConfigInstance.MapHeight {
 		inbound = true
 	}
 
@@ -73,8 +73,8 @@ func (g *gameObjectManager) Update(x, y int) {
 	}
 
 	if inbound && (InputInstance.LBtnClicked() || InputInstance.RBtnClicked()) {
-		worldX := float64(int(x+int(CameraInstance.x)) / int(TILE_SIZE))
-		worldY := float64(int(y+int(CameraInstance.y)) / int(TILE_SIZE))
+		worldX := float64(int(x+int(CameraInstance.x)) / int(SettingConfigInstance.RenderTileSize))
+		worldY := float64(int(y+int(CameraInstance.y)) / int(SettingConfigInstance.RenderTileSize))
 
 		if worldX >= 0 && worldY >= 0 && worldX < GameInstance.mapWidth && worldY < GameInstance.mapHeight {
 			for _, e := range g.objects {
@@ -92,8 +92,8 @@ func (g *gameObjectManager) Update(x, y int) {
 
 	_, wy := ebiten.Wheel()
 	if wy != 0 {
-		TILE_SIZE = math.Max(1, TILE_SIZE+wy)
-		SCALE = TILE_SIZE / SPRITE_PATTERN
+		SettingConfigInstance.RenderTileSize = math.Max(1, SettingConfigInstance.RenderTileSize+wy)
+		GameInstance.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
 
 		GameInstance.cameraToCenter()
 
@@ -118,16 +118,14 @@ func (g *gameObjectManager) GetSelectedList() []*GameObject {
 	return ret
 }
 
-func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, name string) {
-	img := assetmanager.Get(name)
+func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, img *assetmanager.ImageResource) {
 	obj := &GameSprite{x: x, y: y, screenX: 0, screenY: 0, width: width, height: height, selected: false, img: img, op: &ebiten.DrawImageOptions{}}
 	obj.Init()
 	obj.SetXY(x, y)
 	g.tiles = append(g.tiles, obj)
 }
 
-func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, sprName, objName string) {
-	img := assetmanager.Get(sprName)
+func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, img *assetmanager.ImageResource, objName string, zindex float64) *GameObject {
 	obj := &GameObject{GameSprite: GameSprite{x: x, y: y, screenX: 0, screenY: 0, width: width, height: height, selected: false, img: img, op: &ebiten.DrawImageOptions{}},
 		cdmanager:   CooldownManager{dict: make(map[string]*Cooldown)},
 		objName:     objName,
@@ -135,18 +133,25 @@ func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, sprName, 
 	//obj := &GameSprite{x, y, screenWidth, screenHeight, false, img, ebiten.DrawImageOptions{}}
 	obj.SetXY(x, y)
 	obj.SetSize(width, height)
+	obj.zindex = zindex
 
-	if objName == ConfigInstance.PlayerObjectName {
+	if objName == SettingConfigInstance.PlayerObjectName {
 		obj.selected = true
 	}
 
 	obj.Init()
 	g.objects = append(g.objects, obj)
+
+	return obj
 }
 
-func (g *gameObjectManager) CheckGameObjectPosition(x, y, width, height float64, self *GameObject) *GameObject {
+func (g *gameObjectManager) CheckGameObjectPosition(x, y, z, width, height float64, self *GameObject) *GameObject {
 	for _, e := range g.objects {
 		if e == self {
+			continue
+		}
+
+		if z != e.zindex {
 			continue
 		}
 		if e.CheckCollision(x, y, width, height) {

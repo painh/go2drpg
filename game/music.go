@@ -110,7 +110,7 @@ type MusicManager struct {
 func (m *MusicManager) Init() {
 	m.audioContext = audio.NewContext(sampleRate)
 
-	m.PlayNum(0)
+	//m.PlayNum(0)
 	//newPlayer, _ := NewPlayer(audioContext, musicList[0])
 	//m.musicPlayer = newPlayer
 	//m.musicPlayerCh = make(chan *MusicPlayer)
