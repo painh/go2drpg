@@ -55,11 +55,12 @@ func (g *GameObject) Update() {
 			if len(g.movePosList) == 1 {
 				//도착점이면 이벤트 발생
 				g.movePosList = g.movePosList[1:]
-				//if scripts.CheckEvent(obj.objName) {
-				//	scripts.StartEvent(obj.objName)
-				//} else {
-				//	GameInstance.Log.AddWithPrompt("아무것도 없습니다.")
-				//}
+
+				if GameInstance.scriptManager.RunObjectScript(obj.objName) {
+					//ok
+				} else {
+					GameInstance.Log.AddWithPrompt("아무것도 없습니다.")
+				}
 				return
 			}
 		}

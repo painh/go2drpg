@@ -78,7 +78,6 @@ type GameLog struct {
 	currentSelectGroup int
 	waitForSelect      bool
 	LastSelectedIndex  int
-	callBack           func(info interface{})
 	textSelectElement  []TextSelectElement
 
 	logBuf   *ebiten.Image
@@ -126,12 +125,12 @@ func (g *GameLog) Update(x, y int) {
 			g.LastSelectedIndex = e.selectIndex
 			e.selected = true
 			g.waitForSelect = false
-			if g.callBack != nil {
-				info := g.GetLocationInfo(e.key)
-				g.callBack(info)
-			} else {
-				GameInstance.ShiftFlowToEventLoop()
-			}
+			//if g.callBack != nil {
+			//	info := g.GetLocationInfo(e.key)
+			//	g.callBack(info)
+			//} else {
+			//	GameInstance.ShiftFlowToEventLoop()
+			//}
 
 		}
 
@@ -187,7 +186,7 @@ func (g *GameLog) TextSelect(t []TextSelectElement, callBack func(info interface
 
 	g.currentSelectGroup++
 	g.waitForSelect = true
-	g.callBack = callBack
+	//g.callBack = callBack
 
 	for i, v := range t {
 		l := GameLogElement{text: "", createdTs: makeTimestamp(), key: v.key}

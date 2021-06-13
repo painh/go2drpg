@@ -11,14 +11,13 @@ const GAME_UPDATE_STATUS_MAP_INTERACTION = 0
 const GAME_UPDATE_STATUS_WAIT_USER_LOG_INTERACTION = 1
 
 type Game struct {
-	status                 int
-	screenWidth            int
-	screenHeight           int
-	gameObjectManager      gameObjectManager
-	FlowControllerInstance FlowController
-	mapBuf                 *ebiten.Image
-	mapBufOp               *ebiten.DrawImageOptions
-	Log                    *GameLog
+	status            int
+	screenWidth       int
+	screenHeight      int
+	gameObjectManager gameObjectManager
+	mapBuf            *ebiten.Image
+	mapBufOp          *ebiten.DrawImageOptions
+	Log               *GameLog
 	//itemOriginManager      ItemOriginManager
 	uimanager UIManager
 	cursor    Cursor
@@ -36,6 +35,8 @@ type Game struct {
 	scale float64
 
 	mapLoader MapLoader
+
+	scriptManager ScriptManager
 }
 
 func (g *Game) WaitOneFrameOn() {
@@ -48,6 +49,7 @@ func (g *Game) Update() error {
 	InputInstance.Update()
 	g.uimanager.Update()
 	g.cursor.Update()
+	g.scriptManager.Update()
 	g.Log.Update(InputInstance.x, InputInstance.y)
 	g.music.Update()
 
@@ -131,9 +133,6 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 	g.mapBufOp = &ebiten.DrawImageOptions{}
 	g.mapBufOp.GeoM.Translate(float64(SettingConfigInstance.MapX), float64(SettingConfigInstance.MapY))
 
-	g.FlowControllerInstance = FlowController{}
-	g.FlowControllerInstance.Init()
-
 	g.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
 	g.LoadMap(SettingConfigInstance.LocationList[0])
 	g.Log = &GameLog{lines: []*GameLogElement{}}
@@ -150,23 +149,8 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 	g.player.ActiveLocation(SettingConfigInstance.LocationList[1].Name)
 
 	g.status = GAME_UPDATE_STATUS_MAP_INTERACTION
+	g.scriptManager.Init()
 
-}
-
-func (g *Game) StartEvent() {
-	g.FlowControllerInstance.StartEvent()
-}
-
-func (g *Game) ShiftFlowToMainLoop() {
-	g.FlowControllerInstance.ShiftFlowToMainLoop()
-}
-
-func (g *Game) ShiftFlowToEventLoop() {
-	g.FlowControllerInstance.ShiftFlowToEventLoop()
-}
-
-func (g *Game) EndEvent() {
-	g.FlowControllerInstance.EventEnd()
 }
 
 func (g *Game) SetText(t string) {
