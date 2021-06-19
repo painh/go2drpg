@@ -3,7 +3,6 @@ package game
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/painh/go2drpg/assetmanager"
-	"image/color"
 )
 
 type GameSprite struct {
@@ -32,9 +31,10 @@ func (g *GameSprite) Init() {
 func (g *GameSprite) Draw(screen *ebiten.Image) {
 	if g.img != nil {
 		screen.DrawImage(g.img.Img, g.op)
-	} else {
-		DrawRect(screen, g.screenX, g.screenY, g.screenWidth, g.screenHeight, color.RGBA{R: 255, A: 255})
 	}
+	//else {
+	//	DrawRect(screen, g.screenX, g.screenY, g.screenWidth, g.screenHeight, color.RGBA{R: 255, A: 255})
+	//}
 }
 
 func (g *GameSprite) clickCheck(x, y float64) bool {

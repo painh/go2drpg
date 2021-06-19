@@ -80,8 +80,9 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 	g.gameObjectManager.Clear()
 
-	if base := m.tmxMap.LayerWithName("base"); base != nil {
-		trs, err := base.TileGlobalRefs()
+	for _, v := range m.tmxMap.Layers {
+
+		trs, err := v.TileGlobalRefs()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -93,23 +94,21 @@ func (m *MapLoader) Load(filename string, g *Game) {
 			log.Fatalf("expected tiles of length %v, got %v", e, l)
 		}
 
-		tds, err := base.TileDefs(m.tmxMap.TileSets)
+		tds, err := v.TileDefs(m.tmxMap.TileSets)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		cnt := 0
 
-		for y := 0; y < base.Height; y++ {
-			for x := 0; x < base.Width; x++ {
+		for y := 0; y < v.Height; y++ {
+			for x := 0; x < v.Width; x++ {
 				//"base_"+strconv.Itoa())
 				image := m.GetTileImage(tmx.GlobalID(tds[cnt].GlobalID))
 				g.gameObjectManager.GameSpriteAdd(float64(x), float64(y), SettingConfigInstance.RealTileSize, SettingConfigInstance.RealTileSize, image)
 				cnt++
 			}
 		}
-	} else {
-		log.Fatal("cant find tile layer : name {base}")
 	}
 
 	if objects := m.tmxMap.ObjectGroupWithName("obj"); objects != nil {
@@ -124,7 +123,7 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 			image := m.GetTileImage(tmx.GlobalID(v.GlobalID))
 
-			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 0, false)
+			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 0, false, false)
 		}
 	} else {
 		log.Fatal("cant find object layer : name {obj}")
@@ -143,7 +142,7 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 			image := m.GetTileImage(tmx.GlobalID(v.GlobalID))
 
-			obj := g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height/2, image, v.Name, 0, false)
+			obj := g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height/2, image, v.Name, 0, false, true)
 			obj.offsetY = -1
 			obj.Refresh()
 		}
@@ -163,7 +162,7 @@ func (m *MapLoader) Load(filename string, g *Game) {
 
 			image := m.GetTileImage(tmx.GlobalID(v.GlobalID))
 
-			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 1, true)
+			g.gameObjectManager.GameObjectAdd(float64(x), float64(y), v.Width, v.Height, image, v.Name, 1, true, false)
 		}
 	} else {
 		log.Fatal("cant find object layer : name {overchar}")

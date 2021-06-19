@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="48" tileheight="48" infinite="0" nextlayerid="5" nextobjectid="3">
- <tileset firstgid="1" source="Serene_Village_48x48.tsx"/>
- <tileset firstgid="856" source="New_Characters 48x96.tsx"/>
+ <tileset firstgid="1" source="../common/Serene_Village_48x48.tsx"/>
+ <tileset firstgid="856" source="../common/New_Characters 48x96.tsx"/>
  <layer id="1" name="base" width="10" height="10">
   <data encoding="csv">
 5,5,5,5,5,5,5,5,5,5,

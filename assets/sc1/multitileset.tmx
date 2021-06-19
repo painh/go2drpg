@@ -1,19 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="48" tileheight="48" infinite="0" nextlayerid="5" nextobjectid="21">
- <tileset firstgid="1" source="Floors_TILESET_A2_.tsx"/>
- <tileset firstgid="193" source="Art_01.tsx"/>
- <tileset firstgid="449" source="Basement_01.tsx"/>
- <tileset firstgid="705" source="New_Characters 48x96.tsx"/>
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="48" tileheight="48" infinite="0" nextlayerid="6" nextobjectid="24">
+ <tileset firstgid="1" source="../common/Floors_TILESET_A2_.tsx"/>
+ <tileset firstgid="193" source="../common/Art_01.tsx"/>
+ <tileset firstgid="449" source="../common/Basement_01.tsx"/>
+ <tileset firstgid="705" source="../common/New_Characters 48x96.tsx"/>
+ <tileset firstgid="801" source="../common/Basement_02.tsx"/>
+ <tileset firstgid="1057" source="../common/Generic_01.tsx"/>
  <layer id="1" name="base" width="10" height="10">
   <data encoding="csv">
+1281,1281,1281,1281,1281,1281,1281,1281,1281,1281,
 5,5,5,5,5,5,5,5,5,5,
 5,5,5,5,5,5,5,5,5,5,
-5,5,5,5,5,5,5,5,5,5,
-5,5,5,5,5,23,5,5,5,5,
-5,5,5,5,5,5,5,5,5,5,
-5,5,5,5,5,5,22,22,23,0,
-5,5,5,5,5,5,0,0,0,0,
-5,0,5,23,0,0,0,0,0,0,
+5,5,5,57,57,57,5,5,5,5,
+5,5,5,57,57,57,5,6,5,5,
+5,5,5,57,57,57,6,6,6,6,
+5,5,5,57,57,57,6,6,6,6,
+5,5,5,6,6,6,6,6,6,6,
+5,5,5,6,6,6,6,6,6,6,
+5,5,5,6,6,6,6,6,6,6
+</data>
+ </layer>
+ <layer id="5" name="base2" width="10" height="10">
+  <data encoding="csv">
+0,0,0,0,1076,1077,0,0,0,0,
+1110,0,0,0,0,0,0,0,0,0,
+0,0,878,0,0,0,0,0,0,0,
+0,878,894,0,0,0,0,0,0,0,
+0,894,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0
 </data>
@@ -21,10 +37,13 @@
  <objectgroup id="2" name="obj">
   <object id="7" gid="503" x="0" y="96" width="48" height="48"/>
   <object id="9" gid="486" x="96" y="96" width="48" height="48"/>
+  <object id="21" gid="449" x="438" y="577" width="48" height="48"/>
+  <object id="22" x="0" y="0" width="480" height="48"/>
  </objectgroup>
  <objectgroup id="3" name="char">
   <object id="13" name="Player" gid="705" x="48" y="96" width="48" height="96"/>
-  <object id="20" gid="711" x="96" y="192" width="48" height="96"/>
+  <object id="20" name="test" gid="711" x="96" y="192" width="48" height="96"/>
+  <object id="23" x="549" y="566"/>
  </objectgroup>
  <objectgroup id="4" name="overchar">
   <object id="14" gid="487" x="0" y="48" width="48" height="48"/>

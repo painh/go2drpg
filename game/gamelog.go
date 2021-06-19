@@ -3,6 +3,8 @@ package game
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"image"
 	"image/color"
 	"strings"
 )
@@ -16,9 +18,12 @@ type GameLogElement struct {
 	selectGroup int
 	selected    bool
 	selectIndex int
+	drawRect    image.Rectangle
+	mouseover   bool
 }
 
 func (g *GameLogElement) Set(text string) {
+	g.selectGroup = 0
 	g.text = text
 
 	newText := ""
@@ -41,8 +46,8 @@ func (g *GameLogElement) Set(text string) {
 		}
 	}
 	resultText += newText
-	rect := defaultFontInstance.BoundString(newText)
-	y += rect.Dy() + SettingConfigInstance.LineSpacing
+	g.drawRect = defaultFontInstance.BoundString(newText)
+	y += g.drawRect.Dy() + SettingConfigInstance.LineSpacing
 	y += SettingConfigInstance.LineSpacing
 
 	strs := strings.Split(resultText, "\n")
@@ -66,7 +71,13 @@ func (g *GameLogElement) Update() {
 func (g *GameLogElement) Draw(screen *ebiten.Image, x, y float64) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM.Translate(x, y)
+	if g.selectGroup != 0 {
+		ebitenutil.DrawRect(screen, x, y+1, float64(SettingConfigInstance.LogWidth), float64(g.drawRect.Dy()+SettingConfigInstance.LineSpacing*2)-2, color.RGBA{128, 128, 128, 255})
+	}
 	screen.DrawImage(g.imageBuf, op)
+	if g.mouseover {
+		DrawRect(screen, x, y, float64(SettingConfigInstance.LogWidth), g.lineHeight, color.RGBA{0, 255, 0, 255})
+	}
 
 	if g.selected {
 		DrawRect(screen, x, y, float64(SettingConfigInstance.LogWidth), g.lineHeight, color.White)
@@ -78,13 +89,14 @@ type GameLog struct {
 	currentSelectGroup int
 	waitForSelect      bool
 	LastSelectedIndex  int
+	callBack           func(info interface{})
 	textSelectElement  []TextSelectElement
 
 	logBuf   *ebiten.Image
 	logBufOp *ebiten.DrawImageOptions
 }
 
-func (g *GameLog) GetLocationInfo(key string) interface{} {
+func (g *GameLog) GetElementInfo(key string) interface{} {
 	for _, v := range g.textSelectElement {
 		if v.key == key {
 			return v.info
@@ -98,15 +110,11 @@ func (g *GameLog) Update(x, y int) {
 	if !g.waitForSelect {
 		return
 	}
-
-	if !InputInstance.LBtnClicked() {
-		return
-	}
-
-	if !(x >= SettingConfigInstance.LogX && x <= SettingConfigInstance.LogX+SettingConfigInstance.LogWidth &&
-		y >= SettingConfigInstance.LogY && y <= SettingConfigInstance.LogY+SettingConfigInstance.LogHeight) {
-		return
-	}
+	//
+	//if !(x >= SettingConfigInstance.LogX && x <= SettingConfigInstance.LogX+SettingConfigInstance.LogWidth &&
+	//	y >= SettingConfigInstance.LogY && y <= SettingConfigInstance.LogY+SettingConfigInstance.LogHeight) {
+	//	return
+	//}
 
 	//cursorX := float64(x - SettingConfigInstance.LogX)
 	cursorY := float64(y - SettingConfigInstance.LogY)
@@ -118,20 +126,24 @@ func (g *GameLog) Update(x, y int) {
 			break
 		}
 
+		e.mouseover = false
+
 		if cursorY >= lineY-e.lineHeight && cursorY < lineY {
 			if e.selectGroup != g.currentSelectGroup {
-				break
+				continue
 			}
-			g.LastSelectedIndex = e.selectIndex
-			e.selected = true
-			g.waitForSelect = false
-			//if g.callBack != nil {
-			//	info := g.GetLocationInfo(e.key)
-			//	g.callBack(info)
-			//} else {
-			//	GameInstance.ShiftFlowToEventLoop()
-			//}
 
+			if InputInstance.LBtnClicked() {
+				g.LastSelectedIndex = e.selectIndex
+				e.selected = true
+				g.waitForSelect = false
+				if g.callBack != nil {
+					info := g.GetElementInfo(e.key)
+					g.callBack(info)
+				}
+			} else {
+				e.mouseover = true
+			}
 		}
 
 		lineY -= float64(e.lineHeight)
@@ -156,6 +168,7 @@ func (g *GameLog) Draw(screen *ebiten.Image) {
 }
 
 func (g *GameLog) AddString(text string) {
+	g.waitForSelect = false
 
 	l := GameLogElement{text: text, createdTs: makeTimestamp()}
 	l.Set(text)
@@ -186,7 +199,7 @@ func (g *GameLog) TextSelect(t []TextSelectElement, callBack func(info interface
 
 	g.currentSelectGroup++
 	g.waitForSelect = true
-	//g.callBack = callBack
+	g.callBack = callBack
 
 	for i, v := range t {
 		l := GameLogElement{text: "", createdTs: makeTimestamp(), key: v.key}
@@ -202,4 +215,18 @@ func (g *GameLog) TextSelect(t []TextSelectElement, callBack func(info interface
 	}
 
 	g.textSelectElement = t
+}
+
+func (g *GameLog) Confirm(text string, callBack func()) {
+	g.Add(text)
+
+	var list = []TextSelectElement{}
+
+	list = append(list, TextSelectElement{key: "확인", displayString: "확인", info: "확인"})
+	list = append(list, TextSelectElement{key: "취소", displayString: "취소", info: "취소"})
+	GameInstance.log.TextSelect(list, func(info interface{}) {
+		if info == "확인" {
+			callBack()
+		}
+	})
 }

@@ -119,7 +119,12 @@ func (t *TilePos) PathNeighbors() []astar.Pather {
 }
 
 func (t *TilePos) PathNeighborCost(to astar.Pather) float64 {
-	return SettingConfigInstance.RealTileSize //이동비용은 항상 1
+	//return SettingConfigInstance.RealTileSize //이동비용은 항상 1 -> 라고 했더니 대각선도 그냥 막 가버림
+	toPos := to.(*TilePos)
+	dx := t.x - toPos.x
+	dy := t.y - toPos.y
+
+	return dx*dx + dy*dy
 }
 
 func (t *TilePos) PathEstimatedCost(to astar.Pather) float64 {

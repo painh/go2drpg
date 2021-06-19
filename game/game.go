@@ -9,6 +9,7 @@ import (
 
 const GAME_UPDATE_STATUS_MAP_INTERACTION = 0
 const GAME_UPDATE_STATUS_WAIT_USER_LOG_INTERACTION = 1
+const GAME_UPDATE_STATUS_TALK_CHAR = 2
 
 type Game struct {
 	status            int
@@ -17,7 +18,7 @@ type Game struct {
 	gameObjectManager gameObjectManager
 	mapBuf            *ebiten.Image
 	mapBufOp          *ebiten.DrawImageOptions
-	Log               *GameLog
+	log               *GameLog
 	//itemOriginManager      ItemOriginManager
 	uimanager UIManager
 	cursor    Cursor
@@ -36,7 +37,9 @@ type Game struct {
 
 	mapLoader MapLoader
 
-	scriptManager ScriptManager
+	scriptManager     ScriptManager
+	keywordManager    KeywordManager
+	gameSwitchManager GameSwitchManager
 }
 
 func (g *Game) WaitOneFrameOn() {
@@ -50,8 +53,12 @@ func (g *Game) Update() error {
 	g.uimanager.Update()
 	g.cursor.Update()
 	g.scriptManager.Update()
-	g.Log.Update(InputInstance.x, InputInstance.y)
+	g.log.Update(InputInstance.x, InputInstance.y)
 	g.music.Update()
+
+	if InputInstance.RBtnClicked() && g.status != GAME_UPDATE_STATUS_MAP_INTERACTION && g.gameObjectManager.Inbound(InputInstance.x, InputInstance.y) {
+		g.log.AddWithPrompt("대화를 종료해 주세요.")
+	}
 
 	if !g.uimanager.Clicked && g.status == GAME_UPDATE_STATUS_MAP_INTERACTION {
 		g.gameObjectManager.Update(InputInstance.x, InputInstance.y)
@@ -97,7 +104,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	//g.TextDialogInstance.Draw(screen)
 
-	g.Log.Draw(screen)
+	g.log.Draw(screen)
 
 	screen.DrawImage(g.mapBuf, g.mapBufOp)
 	g.uimanager.Draw(screen)
@@ -135,12 +142,12 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 
 	g.scale = SettingConfigInstance.RenderTileSize / SettingConfigInstance.RealTileSize
 	g.LoadMap(SettingConfigInstance.LocationList[0])
-	g.Log = &GameLog{lines: []*GameLogElement{}}
-	g.Log.logBuf = ebiten.NewImage(SettingConfigInstance.LogWidth, SettingConfigInstance.LogHeight)
-	g.Log.logBufOp = &ebiten.DrawImageOptions{}
-	g.Log.logBufOp.GeoM.Translate(float64(SettingConfigInstance.LogX), float64(SettingConfigInstance.LogY))
+	g.log = &GameLog{lines: []*GameLogElement{}}
+	g.log.logBuf = ebiten.NewImage(SettingConfigInstance.LogWidth, SettingConfigInstance.LogHeight)
+	g.log.logBufOp = &ebiten.DrawImageOptions{}
+	g.log.logBufOp.GeoM.Translate(float64(SettingConfigInstance.LogX), float64(SettingConfigInstance.LogY))
 
-	g.Log.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
+	g.log.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
 
 	g.uimanager.Init()
 	g.cursor.Init()
@@ -150,11 +157,16 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 
 	g.status = GAME_UPDATE_STATUS_MAP_INTERACTION
 	g.scriptManager.Init()
+	g.keywordManager.Init()
+	g.gameSwitchManager.Init()
 
+	for _, v := range SettingConfigInstance.Scripts {
+		ScriptLoad(SettingConfigInstance.WorkFolder + v)
+	}
 }
 
 func (g *Game) SetText(t string) {
-	g.Log.Add(t)
+	g.log.Add(t)
 }
 
 func (g *Game) TextSelect(t []string) {
@@ -163,7 +175,7 @@ func (g *Game) TextSelect(t []string) {
 }
 
 func (g *Game) GetLastSelectedIndex() int {
-	return g.Log.LastSelectedIndex
+	return g.log.LastSelectedIndex
 }
 
 func (g *Game) LoadMap(info LocationInfo) {
@@ -174,4 +186,27 @@ func (g *Game) LoadMap(info LocationInfo) {
 	g.cameraToCenter()
 
 	g.music.Init()
+}
+
+func (g *Game) SetStatus(status int) {
+	g.status = status
+	//switch status {
+	//case 0:
+	//	g.status = status
+	//case 1:
+	//	g.status = status
+	//case 2:
+	//	g.status = status
+	//
+	//}
+}
+func (g *Game) TalkEnd() {
+	if g.status == GAME_UPDATE_STATUS_MAP_INTERACTION {
+		g.log.AddWithPrompt("지금은 대화중이 아닙니다.")
+		return
+	}
+
+	g.SetStatus(GAME_UPDATE_STATUS_MAP_INTERACTION)
+	g.log.AddWithPrompt("대화를 종료합니다.")
+	g.gameObjectManager.SetActiveObject(nil)
 }

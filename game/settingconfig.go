@@ -14,6 +14,7 @@ type (
 		Filename    string `yaml:"filename" json:"filename"`
 	}
 	SettingConfig struct {
+		DevMode                bool           `yaml:"dev_mode" json:"dev_mode"`
 		WindowWidth            int            `yaml:"window_width" json:"window_width"`
 		WindowHeight           int            `yaml:"window_height" json:"window_height"`
 		DoubleClickPixelMargin int            `yaml:"double_click_pixel_margin" json:"double_click_pixel_margin"`
@@ -41,10 +42,14 @@ type (
 		BtnLocationY           int            `yaml:"btn_location_y" json:"btn_location_y"`
 		BtnLocationWidth       int            `yaml:"btn_location_width" json:"btn_location_width"`
 		BtnLocationHeight      int            `yaml:"btn_location_height" json:"btn_location_height"`
-		BtnItemX               int            `yaml:"btn_item_x" json:"btn_item_x"`
-		BtnItemY               int            `yaml:"btn_item_y" json:"btn_item_y"`
-		BtnItemWidth           int            `yaml:"btn_item_width" json:"btn_item_width"`
-		BtnItemHeight          int            `yaml:"btn_item_height" json:"btn_item_height"`
+		BtnKeywordX            int            `yaml:"btn_keyword_x" json:"btn_keyword_x"`
+		BtnKeywordY            int            `yaml:"btn_keyword_y" json:"btn_keyword_y"`
+		BtnKeywordWidth        int            `yaml:"btn_keyword_width" json:"btn_keyword_width"`
+		BtnKeywordHeight       int            `yaml:"btn_keyword_height" json:"btn_keyword_height"`
+		BtnTalkEndX            int            `yaml:"btn_talk_end_x" json:"btn_talk_end_x"`
+		BtnTalkEndY            int            `yaml:"btn_talk_end_y" json:"btn_talk_end_y"`
+		BtnTalkEndWidth        int            `yaml:"btn_talk_end_width" json:"btn_talk_end_width"`
+		BtnTalkEndHeight       int            `yaml:"btn_talk_end_height" json:"btn_talk_end_height"`
 		CursorX                int            `yaml:"cursor_x" json:"cursor_x"`
 		CursorY                int            `yaml:"cursor_y" json:"cursor_y"`
 		StartTimeMin           int            `yaml:"start_time_min" json:"start_time_min"`
@@ -63,8 +68,11 @@ type (
 		WorkFolder             string         `yaml:"work_folder" json:"work_folder"`
 		LocationList           []LocationInfo `yaml:"location_list" json:"location_list"`
 		DefaultMoveMin         int            `yaml:"default_move_min" json:"default_move_min"`
+		DefaultTalkMin         int            `yaml:"default_talk_min" json:"default_talk_min"`
+		DefaultLocationMin     int            `yaml:"default_location_min" json:"default_location_min"`
 		PlayerObjectName       string         `yaml:"player_object_name" json:"player_object_name"`
 		ZoomStep               int            `yaml:"zoom_step" json:"zoom_step"`
+		Scripts                []string       `yaml:"scripts" json:"scripts"`
 	}
 )
 

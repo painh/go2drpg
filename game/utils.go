@@ -15,6 +15,8 @@ import (
 func DrawRect(screen *ebiten.Image, x, y, width, height float64, color color.Color) {
 	width--
 	height--
+	x++
+	//y++
 	ebitenutil.DrawLine(screen, x, y, x+width, y, color)                 // top
 	ebitenutil.DrawLine(screen, x+width, y, x+width, y+height, color)    // right
 	ebitenutil.DrawLine(screen, x, y, x, y+height, color)                // left

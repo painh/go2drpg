@@ -1,0 +1,13 @@
+---
+"test":
+  - person: true
+  - text: "안녕하세요."
+  - setStatus: 2
+  - addkeyword: "살해도구"
+
+"test:살해도구:testflag":
+  - text: "난 그런거 모르는데?222"
+
+"test:살해도구":
+  - text: "난 그런거 모르는데?"
+  - switchon: "testflag"

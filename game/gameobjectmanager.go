@@ -11,6 +11,7 @@ type gameObjectManager struct {
 	tiles         []*GameSprite
 	objects       []*GameObject
 	overObjects   []*GameObject
+	activeObject  *GameObject
 }
 
 func (g *gameObjectManager) Clear() {
@@ -25,6 +26,9 @@ func (g *gameObjectManager) Draw(screen *ebiten.Image) {
 	}
 
 	for _, e := range g.objects {
+		if g.activeObject == e {
+			e.DrawSelected(screen, e.isChar)
+		}
 		e.Draw(screen)
 	}
 
@@ -64,14 +68,18 @@ func (g *gameObjectManager) selectProcess(x, y float64) bool {
 	return objFound
 }
 
-func (g *gameObjectManager) Update(x, y int) {
-	objFound := false
-	inbound := false
-
+func (g *gameObjectManager) Inbound(x, y int) bool {
 	if x >= SettingConfigInstance.MapX && y >= SettingConfigInstance.MapY &&
 		x < SettingConfigInstance.MapWidth && y < SettingConfigInstance.MapHeight {
-		inbound = true
+		return true
 	}
+
+	return false
+}
+
+func (g *gameObjectManager) Update(x, y int) {
+	objFound := false
+	inbound := g.Inbound(x, y)
 
 	if InputInstance.LBtnPressed() && inbound {
 		if !objFound {
@@ -82,9 +90,10 @@ func (g *gameObjectManager) Update(x, y int) {
 		}
 	}
 
-	if inbound && (InputInstance.LBtnClicked() || InputInstance.RBtnClicked()) {
+	if inbound && InputInstance.RBtnClicked() {
 		worldX := float64(int(x+int(CameraInstance.x)) / int(SettingConfigInstance.RenderTileSize))
 		worldY := float64(int(y+int(CameraInstance.y)) / int(SettingConfigInstance.RenderTileSize))
+		g.activeObject = nil
 
 		if worldX >= 0 && worldY >= 0 && worldX < GameInstance.mapWidth && worldY < GameInstance.mapHeight {
 			for _, e := range g.objects {
@@ -96,7 +105,7 @@ func (g *gameObjectManager) Update(x, y int) {
 			//GameInstance.cameraToCenter()
 			//scripts.StartEvent("slime")
 		} else {
-			GameInstance.Log.AddWithPrompt("그곳으로 이동 할 수 없습니다.")
+			GameInstance.log.AddWithPrompt("그곳으로 이동 할 수 없습니다.")
 		}
 	}
 
@@ -160,11 +169,12 @@ func (g *gameObjectManager) GameSpriteAdd(x, y, width, height float64, img *asse
 	g.tiles = append(g.tiles, obj)
 }
 
-func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, img *assetmanager.ImageResource, objName string, zindex float64, isOverObject bool) *GameObject {
+func (g *gameObjectManager) GameObjectAdd(x, y, width, height float64, img *assetmanager.ImageResource, objName string, zindex float64, isOverObject bool, isChar bool) *GameObject {
 	obj := &GameObject{GameSprite: GameSprite{x: x, y: y, screenX: 0, screenY: 0, width: width, height: height, selected: false, img: img, op: &ebiten.DrawImageOptions{}},
 		cdmanager:   CooldownManager{dict: make(map[string]*Cooldown)},
 		objName:     objName,
-		movePosList: []*TilePos{}}
+		movePosList: []*TilePos{},
+		isChar:      isChar}
 	//obj := &GameSprite{x, y, screenWidth, screenHeight, false, img, ebiten.DrawImageOptions{}}
 	obj.SetXY(x, y)
 	obj.SetSize(width, height)
@@ -199,4 +209,9 @@ func (g *gameObjectManager) CheckGameObjectPosition(x, y, z, width, height float
 		}
 	}
 	return nil
+}
+
+func (g *gameObjectManager) SetActiveObject(obj *GameObject) {
+	g.activeObject = obj
+
 }

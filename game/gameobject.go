@@ -11,6 +11,7 @@ type GameObject struct {
 	cdmanager CooldownManager
 	objName   string
 	zindex    float64
+	isChar    bool
 
 	movePosList []*TilePos
 }
@@ -28,7 +29,7 @@ func (g *GameObject) FindTo(x, y float64) {
 	path, _, found := tileManagerInstance.FindTo(g.x, g.y, x, y, g)
 
 	if !found {
-		GameInstance.Log.AddWithPrompt("can't move there")
+		GameInstance.log.AddWithPrompt("can't move there")
 		return
 	}
 
@@ -38,7 +39,7 @@ func (g *GameObject) FindTo(x, y float64) {
 		g.movePosList = append(g.movePosList, v.(*TilePos))
 	}
 
-	GameInstance.Log.AddWithPrompt("Move : ", x, y)
+	GameInstance.log.AddWithPrompt("Move : ", x, y)
 
 }
 
@@ -56,10 +57,13 @@ func (g *GameObject) Update() {
 				//도착점이면 이벤트 발생
 				g.movePosList = g.movePosList[1:]
 
-				if GameInstance.scriptManager.RunObjectScript(obj.objName) {
-					//ok
-				} else {
-					GameInstance.Log.AddWithPrompt("아무것도 없습니다.")
+				if obj.objName != "" {
+					GameInstance.gameObjectManager.SetActiveObject(obj)
+					if GameInstance.scriptManager.RunObjectScript(obj.objName) {
+						//ok
+					} else {
+						GameInstance.log.AddWithPrompt("아무것도 없습니다.")
+					}
 				}
 				return
 			}
@@ -83,6 +87,15 @@ func (g *GameObject) CheckCollision(x, y, width, height float64) bool {
 	}
 
 	return false
+}
+
+func (g *GameObject) DrawSelected(screen *ebiten.Image, bottomAlign bool) {
+	if bottomAlign {
+		DrawRect(screen, g.screenX, g.screenY+SettingConfigInstance.RenderTileSize, g.screenWidth, g.screenHeight, color.RGBA{G: 255, A: 255})
+	} else {
+		DrawRect(screen, g.screenX, g.screenY, g.screenWidth, g.screenHeight, color.RGBA{G: 255, A: 255})
+	}
+
 }
 
 func (g *GameObject) Draw(screen *ebiten.Image) {

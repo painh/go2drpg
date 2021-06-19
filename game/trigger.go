@@ -1,13 +1,13 @@
 package game
 
 type Trigger interface {
-	GetScripts() *[]ScriptAction
+	GetScripts() *[]ScriptActionInterface
 }
 
 type CharacterCollisionTrigger struct {
 }
 
-func (s *CharacterCollisionTrigger) GetScripts() *[]ScriptAction {
+func (s *CharacterCollisionTrigger) GetScripts() *[]ScriptActionInterface {
 	return nil
 }
 
