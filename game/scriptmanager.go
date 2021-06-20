@@ -2,36 +2,12 @@ package game
 
 import "strings"
 
-//액션 종류
-//대화
-//선택
-//선택에 따른 무언가
-//변수 조절
-
-const (
-	SCRIPT_ACTION_TYPE_UNKNOWN               = 0
-	SCRIPT_ACTION_TYPE_TEXT                  = 1
-	SCRIPT_ACTION_TYPE_SET_GAME_STATUS       = 2
-	SCRIPT_ACTION_TYPE_ADD_KEYWORD_TO_PLAYER = 3
-	SCRIPT_ACTION_TYPE_SET_SWITCH            = 5
-)
-
 type ScriptActionInterface interface {
-	BreakUpdateLoop() bool
 	Run()
-	GetType() int
 }
 
 type ScriptActionSetGameStatus struct {
 	status int
-}
-
-func (s *ScriptActionSetGameStatus) GetType() int {
-	return SCRIPT_ACTION_TYPE_SET_GAME_STATUS
-}
-
-func (s *ScriptActionSetGameStatus) BreakUpdateLoop() bool {
-	return false
 }
 
 func (s *ScriptActionSetGameStatus) Run() {
@@ -42,28 +18,12 @@ type ScriptActionText struct {
 	text string
 }
 
-func (s *ScriptActionText) GetType() int {
-	return SCRIPT_ACTION_TYPE_TEXT
-}
-
-func (s *ScriptActionText) BreakUpdateLoop() bool {
-	return false
-}
-
 func (s *ScriptActionText) Run() {
 	GameInstance.log.Add(s.text)
 }
 
 type ScriptActionKeyword struct {
 	keyword string
-}
-
-func (s *ScriptActionKeyword) GetType() int {
-	return SCRIPT_ACTION_TYPE_ADD_KEYWORD_TO_PLAYER
-}
-
-func (s *ScriptActionKeyword) BreakUpdateLoop() bool {
-	return false
 }
 
 func (s *ScriptActionKeyword) Run() {
@@ -75,16 +35,16 @@ type ScriptActionSetSwitch struct {
 	flag    bool
 }
 
-func (s *ScriptActionSetSwitch) GetType() int {
-	return SCRIPT_ACTION_TYPE_SET_SWITCH
-}
-
-func (s *ScriptActionSetSwitch) BreakUpdateLoop() bool {
-	return false
-}
-
 func (s *ScriptActionSetSwitch) Run() {
 	GameInstance.gameSwitchManager.SetSwitch(s.keyword, s.flag)
+}
+
+type ScriptActionPlayMusic struct {
+	filename string
+}
+
+func (s *ScriptActionPlayMusic) Run() {
+	GameInstance.music.Play(s.filename)
 }
 
 type SceneManager struct {

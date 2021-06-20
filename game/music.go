@@ -2,8 +2,6 @@ package game
 
 import (
 	"bytes"
-	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	_ "image/png"
 	"io"
 	"time"
@@ -120,43 +118,13 @@ func (m *MusicManager) Init() {
 	//m.errCh = make(chan error)
 }
 
-func (m *MusicManager) PlayNum(n int) {
-
-	musicList := []string{
-		"assets/Yadu Rajiv - miniloops-1 - 01 - Run For It.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 02 - Interest.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 03 - Action Prep.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 04 - Chill Zero.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 05 - Strange Happenings.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 06 - New Age Ghost.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 07 - Look Forward.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 08 - Hidden in the Shadows.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 09 - Bubblegum Pop Hiphop.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 10 - Symbiosis.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 11 - Pirate Party.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 12 - Yeah yeah yeah.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 13 - Underground crawl.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 14 - Tonal Archery.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 15 - Low Growl.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 16 - Ohoh.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 17 - Memory Lane.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 18 - Morning Grind.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 19 - Expect Us.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 20 - Groovy Drive.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 21 - Charge.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 22 - Adventure Now.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 23 - Big Maybe.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 24 - Coffee Duel.ogg",
-		"assets/Yadu Rajiv - miniloops-1 - 25 - Glorp Glorp.ogg",
-	}
-
+func (m *MusicManager) Play(filename string) {
 	if m.musicPlayer != nil {
 		m.musicPlayer.Close()
 	}
 
-	newPlayer, _ := NewPlayer(m.audioContext, musicList[n])
+	newPlayer, _ := NewPlayer(m.audioContext, SettingConfigInstance.WorkFolder+filename)
 	m.musicPlayer = newPlayer
-
 }
 
 func (m *MusicManager) Update() error {
@@ -174,9 +142,5 @@ func (m *MusicManager) Update() error {
 		}
 	}
 
-	if inpututil.IsKeyJustPressed(ebiten.KeyRight) {
-		m.playNum++
-		m.PlayNum(m.playNum)
-	}
 	return nil
 }

@@ -27,6 +27,8 @@ func ScriptParse(scr *SceneManager, i interface{}) ScriptActionInterface {
 			return &ScriptActionSetSwitch{keyword: v2.(string), flag: false}
 		case "addkeyword":
 			return &ScriptActionKeyword{keyword: v2.(string)}
+		case "playmusic":
+			return &ScriptActionPlayMusic{filename: v2.(string)}
 		default:
 			log.Fatal("invalid command ", k2, v2)
 		}

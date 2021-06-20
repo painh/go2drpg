@@ -4,9 +4,11 @@
   - text: "안녕하세요."
   - setStatus: 2
   - addkeyword: "살해도구"
+  - playmusic: "../common/Abstraction - Three Red Hearts (Prepare to Dev)/Save the City.ogg"
 
 "test:살해도구:testflag":
   - text: "난 그런거 모르는데?222"
+  - playmusic: "../common/Abstraction - Three Red Hearts (Prepare to Dev)/Modern Bits.ogg"
 
 "test:살해도구":
   - text: "난 그런거 모르는데?"
