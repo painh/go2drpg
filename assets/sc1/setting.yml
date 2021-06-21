@@ -66,3 +66,4 @@ zoom_step: 4
 scripts:
   - scr1.yml
   - scr2.yml
+btn_click_sound: "../common/Groovy's Retro Sound Effects/Hit_Hurt/Hit_Hurt1.wav"

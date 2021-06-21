@@ -73,6 +73,7 @@ type (
 		PlayerObjectName       string         `yaml:"player_object_name" json:"player_object_name"`
 		ZoomStep               int            `yaml:"zoom_step" json:"zoom_step"`
 		Scripts                []string       `yaml:"scripts" json:"scripts"`
+		BtnClickSound          string         `yaml:"btn_click_sound" json:"btn_click_sound"`
 	}
 )
 

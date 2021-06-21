@@ -31,7 +31,7 @@ type Game struct {
 
 	player Player
 
-	music MusicManager
+	audio AudioManager
 
 	scale float64
 
@@ -54,7 +54,7 @@ func (g *Game) Update() error {
 	g.cursor.Update()
 	g.scriptManager.Update()
 	g.log.Update(InputInstance.x, InputInstance.y)
-	g.music.Update()
+	g.audio.Update()
 
 	if InputInstance.RBtnClicked() && g.status != GAME_UPDATE_STATUS_MAP_INTERACTION && g.gameObjectManager.Inbound(InputInstance.x, InputInstance.y) {
 		g.log.AddWithPrompt("대화를 종료해 주세요.")
@@ -185,7 +185,7 @@ func (g *Game) LoadMap(info LocationInfo) {
 	g.gameObjectManager.Height = float64(g.mapLoader.Height) * SettingConfigInstance.RenderTileSize
 	g.cameraToCenter()
 
-	g.music.Init()
+	g.audio.Init()
 }
 
 func (g *Game) SetStatus(status int) {

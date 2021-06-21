@@ -2,8 +2,11 @@ package game
 
 import (
 	"bytes"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	_ "image/png"
 	"io"
+	"io/ioutil"
+	"log"
 	"time"
 
 	"github.com/hajimehoshi/ebiten/v2/audio"
@@ -32,17 +35,16 @@ func (t musicType) String() string {
 	}
 }
 
-type MusicPlayer struct {
+type AudioPlayer struct {
 	audioContext *audio.Context
 	audioPlayer  *audio.Player
 	current      time.Duration
 	total        time.Duration
-	seCh         chan []byte
 	volume128    int
 	musicType    musicType
 }
 
-func NewPlayer(audioContext *audio.Context, filename string) (*MusicPlayer, error) {
+func NewPlayer(audioContext *audio.Context, filename string) (*AudioPlayer, error) {
 	type audioStream interface {
 		io.ReadSeeker
 		Length() int64
@@ -69,13 +71,13 @@ func NewPlayer(audioContext *audio.Context, filename string) (*MusicPlayer, erro
 	if err != nil {
 		return nil, err
 	}
-	player := &MusicPlayer{
+	player := &AudioPlayer{
 		audioContext: audioContext,
 		audioPlayer:  p,
 		total:        time.Second * time.Duration(s.Length()) / bytesPerSample / sampleRate,
 		volume128:    128,
-		seCh:         make(chan []byte),
-		musicType:    typeOgg,
+		//seCh:         make(chan []byte),
+		musicType: typeOgg,
 	}
 
 	if player.total == 0 {
@@ -86,61 +88,112 @@ func NewPlayer(audioContext *audio.Context, filename string) (*MusicPlayer, erro
 	return player, nil
 }
 
-func (p *MusicPlayer) Close() error {
+func (p *AudioPlayer) Close() error {
 	return p.audioPlayer.Close()
 }
 
-func (p *MusicPlayer) update() error {
-	if p.audioPlayer.IsPlaying() {
-		p.current = p.audioPlayer.Current()
-	}
+func (p *AudioPlayer) update() error {
+	//select {
+	//case p.seBytes = <-p.seCh:
+	//	close(p.seCh)
+	//	p.seCh = nil
+	//default:
+	//}
+
+	//if p.audioPlayer.IsPlaying() {
+	//	p.current = p.audioPlayer.Current()
+	//}
 	return nil
 }
 
-type MusicManager struct {
+type AudioManager struct {
 	audioContext  *audio.Context
-	musicPlayer   *MusicPlayer
-	musicPlayerCh chan *MusicPlayer
+	audioPlayer   *AudioPlayer
+	musicPlayerCh chan *AudioPlayer
 	errCh         chan error
 	playNum       int
+	seDict        map[string][]byte
 }
 
-func (m *MusicManager) Init() {
+func (m *AudioManager) Init() {
 	if m.audioContext != nil {
 		return
 	}
 	m.audioContext = audio.NewContext(sampleRate)
+	m.seDict = map[string][]byte{}
 
 	//m.PlayNum(0)
 	//newPlayer, _ := NewPlayer(audioContext, musicList[0])
-	//m.musicPlayer = newPlayer
-	//m.musicPlayerCh = make(chan *MusicPlayer)
+	//m.audioPlayer = newPlayer
+	//m.musicPlayerCh = make(chan *AudioPlayer)
 	//m.errCh = make(chan error)
 }
 
-func (m *MusicManager) Play(filename string) {
-	if m.musicPlayer != nil {
-		m.musicPlayer.Close()
+func (m *AudioManager) Play(filename string) {
+	if m.audioPlayer != nil {
+		m.audioPlayer.Close()
 	}
 
 	newPlayer, _ := NewPlayer(m.audioContext, SettingConfigInstance.WorkFolder+filename)
-	m.musicPlayer = newPlayer
+	m.audioPlayer = newPlayer
 }
 
-func (m *MusicManager) Update() error {
+func (m *AudioManager) Update() error {
 	//select {
 	//case p := <-m.musicPlayerCh:
-	//	m.musicPlayer = p
+	//	m.audioPlayer = p
 	//case err := <-m.errCh:
 	//	return err
 	//default:
 	//}
 	//
-	if m.musicPlayer != nil {
-		if err := m.musicPlayer.update(); err != nil {
+	if m.audioPlayer != nil {
+		if err := m.audioPlayer.update(); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (m *AudioManager) PlayWave(filename string) {
+	//
+	//go func() {
+	//	b, err := ReadFile(filename)
+	//
+	//	s, err := wav.Decode(m.audioContext, bytes.NewReader(b))
+	//	if err != nil {
+	//		log.Fatal(err)
+	//		return
+	//	}
+	//
+	//	b, err = ioutil.ReadAll(s)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//		return
+	//	}
+	//	m.audioPlayer.seCh <- b
+	//}()
+
+	v, ok := m.seDict[filename]
+
+	if !ok {
+		b, err := ReadFile(filename)
+
+		s, err := wav.Decode(m.audioContext, bytes.NewReader(b))
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		v, err = ioutil.ReadAll(s)
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+		m.seDict[filename] = v
+	}
+
+	sePlayer := audio.NewPlayerFromBytes(m.audioContext, v)
+	sePlayer.Play()
 }

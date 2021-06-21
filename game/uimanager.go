@@ -33,6 +33,7 @@ func (u *UIButton) Update() {
 		InputInstance.x < int(u.x+u.width) && InputInstance.y < int(u.y+u.height) {
 		u.OnClick()
 		GameInstance.uimanager.Clicked = true
+		GameInstance.audio.PlayWave(SettingConfigInstance.WorkFolder + SettingConfigInstance.BtnClickSound)
 	}
 }
 

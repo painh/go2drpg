@@ -137,6 +137,7 @@ func (g *GameLog) Update(x, y int) {
 				g.LastSelectedIndex = e.selectIndex
 				e.selected = true
 				g.waitForSelect = false
+				GameInstance.audio.PlayWave(SettingConfigInstance.WorkFolder + SettingConfigInstance.BtnClickSound)
 				if g.callBack != nil {
 					info := g.GetElementInfo(e.key)
 					g.callBack(info)

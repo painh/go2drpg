@@ -44,7 +44,7 @@ type ScriptActionPlayMusic struct {
 }
 
 func (s *ScriptActionPlayMusic) Run() {
-	GameInstance.music.Play(s.filename)
+	GameInstance.audio.Play(s.filename)
 }
 
 type SceneManager struct {
@@ -78,7 +78,7 @@ func (s *SceneManager) Update() bool {
 }
 
 type ScriptManager struct {
-	scripts                map[string]*SceneManager
+	scripts                []*SceneManager
 	activeScript           *SceneManager
 	activeScriptStack      []*SceneManager
 	lastObjectName         string
@@ -94,7 +94,7 @@ func (s *ScriptManager) GetInvalidKeywordResponse() string {
 }
 
 func (s *ScriptManager) Init() {
-	s.scripts = map[string]*SceneManager{}
+	s.scripts = []*SceneManager{}
 	s.activeScriptStack = []*SceneManager{}
 	s.activeScript = nil
 	s.invalidKeywordResponse = ""
@@ -142,11 +142,21 @@ func (s *ScriptManager) Update() {
 //	s.scripts[scenename].scenename = scenename
 //}
 
+func (s *ScriptManager) FindScript(scenename string) *SceneManager {
+	for _, v := range s.scripts {
+		if v.scenename == scenename {
+			return v
+		}
+	}
+
+	return nil
+}
+
 func (s *ScriptManager) RunObjectScript(objName string) bool {
 	s.invalidKeywordResponse = ""
 
-	val, exists := s.scripts[objName]
-	if !exists {
+	val := s.FindScript(objName)
+	if val == nil {
 		return false
 	}
 
@@ -187,9 +197,9 @@ func (s *ScriptManager) PopScene() *SceneManager {
 }
 
 func (s *ScriptManager) RunKeywordScript(keyword string) bool {
-	for k, v := range s.scripts {
-		if strings.Index(k, s.lastObjectName+":"+keyword) == 0 {
-			slice := strings.Split(k, ":")
+	for _, v := range s.scripts {
+		if strings.Index(v.scenename, s.lastObjectName+":"+keyword) == 0 {
+			slice := strings.Split(v.scenename, ":")
 			if len(slice) < 3 {
 				slice = append(slice, "")
 			}
@@ -210,11 +220,12 @@ func (s *ScriptManager) RunKeywordScript(keyword string) bool {
 }
 
 func (s *ScriptManager) GetSceneManager(scenename string) *SceneManager {
-	v, ok := s.scripts[scenename]
-	if ok {
+	v := s.FindScript(scenename)
+	if v != nil {
 		return v
 	}
 
-	s.scripts[scenename] = &SceneManager{scenename: scenename}
-	return s.scripts[scenename]
+	v = &SceneManager{scenename: scenename}
+	s.scripts = append(s.scripts, v)
+	return v
 }
