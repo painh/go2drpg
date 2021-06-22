@@ -83,6 +83,7 @@ func NewPlayer(audioContext *audio.Context, filename string) (*AudioPlayer, erro
 	if player.total == 0 {
 		player.total = 1
 	}
+	player.audioPlayer.SetVolume(SettingConfigInstance.DefaultBGMVolume)
 	player.audioPlayer.Play()
 
 	return player, nil
@@ -195,5 +196,6 @@ func (m *AudioManager) PlayWave(filename string) {
 	}
 
 	sePlayer := audio.NewPlayerFromBytes(m.audioContext, v)
+	sePlayer.SetVolume(SettingConfigInstance.DefaultSFXVolume)
 	sePlayer.Play()
 }

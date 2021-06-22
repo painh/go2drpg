@@ -67,3 +67,5 @@ scripts:
   - scr1.yml
   - scr2.yml
 btn_click_sound: "../common/Groovy's Retro Sound Effects/Hit_Hurt/Hit_Hurt1.wav"
+default_bgm_volume: 0.3
+default_sfx_volume: 0.3

@@ -74,6 +74,8 @@ type (
 		ZoomStep               int            `yaml:"zoom_step" json:"zoom_step"`
 		Scripts                []string       `yaml:"scripts" json:"scripts"`
 		BtnClickSound          string         `yaml:"btn_click_sound" json:"btn_click_sound"`
+		DefaultBGMVolume       float64        `yaml:"default_bgm_volume" json:"default_bgm_volume"`
+		DefaultSFXVolume       float64        `yaml:"default_sfx_volume" json:"default_sfx_volume"`
 	}
 )
 
