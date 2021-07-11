@@ -3,6 +3,7 @@ package game
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"image/color"
 	"math"
 )
 
@@ -23,9 +24,8 @@ func (c *Cursor) Init() {
 func (c *Cursor) MakeTimePrompt(a ...interface{}) string {
 	text := fmt.Sprint(a...)
 
-	hour := GameInstance.player.curTimeMin / 60
-	min := GameInstance.player.curTimeMin % 60
-	return fmt.Sprintf("%d/%02d:%02d> %s", GameInstance.player.day, int(hour), int(min), text)
+	time := GameInstance.player.GetTimeString()
+	return fmt.Sprintf("%s> %s", time, text)
 }
 
 func (c *Cursor) Update() {
@@ -45,5 +45,5 @@ func (c *Cursor) Update() {
 }
 
 func (c *Cursor) Draw(dst *ebiten.Image) {
-	defaultFontInstance.Draw(dst, c.prompt, SettingConfigInstance.CursorX, SettingConfigInstance.CursorY)
+	defaultFontInstance.Draw(dst, c.prompt, SettingConfigInstance.CursorX, SettingConfigInstance.CursorY, color.RGBA{255, 255, 255, 255})
 }

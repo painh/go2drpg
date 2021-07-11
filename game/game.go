@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/painh/go2drpg/text"
+	"image/color"
 	"log"
 )
 
@@ -47,6 +49,7 @@ func (g *Game) WaitOneFrameOn() {
 }
 
 func (g *Game) Update() error {
+	text.Update()
 	g.frameCnt++
 	g.uimanager.Clicked = false
 	InputInstance.Update()
@@ -57,7 +60,7 @@ func (g *Game) Update() error {
 	g.audio.Update()
 
 	if InputInstance.RBtnClicked() && g.status != GAME_UPDATE_STATUS_MAP_INTERACTION && g.gameObjectManager.Inbound(InputInstance.x, InputInstance.y) {
-		g.log.AddWithPrompt("대화를 종료해 주세요.")
+		g.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "대화를 종료해 주세요.")
 	}
 
 	if !g.uimanager.Clicked && g.status == GAME_UPDATE_STATUS_MAP_INTERACTION {
@@ -147,13 +150,12 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 	g.log.logBufOp = &ebiten.DrawImageOptions{}
 	g.log.logBufOp.GeoM.Translate(float64(SettingConfigInstance.LogX), float64(SettingConfigInstance.LogY))
 
-	g.log.Add("클릭으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
+	g.log.Add(color.RGBA{0, 255, 0, 255}, "<color=#ff0000>클릭</color>으로 선택, 더블클릭 혹은 우클릭으로 이동합니다.")
 
 	g.uimanager.Init()
 	g.cursor.Init()
 	g.player.Init()
 	g.player.ActiveLocation(SettingConfigInstance.LocationList[0].Name)
-	g.player.ActiveLocation(SettingConfigInstance.LocationList[1].Name)
 
 	g.status = GAME_UPDATE_STATUS_MAP_INTERACTION
 	g.scriptManager.Init()
@@ -165,9 +167,9 @@ func (g *Game) Init(screenWidth, screenHeight int) {
 	}
 }
 
-func (g *Game) SetText(t string) {
-	g.log.Add(t)
-}
+//func (g *Game) SetText(t string) {
+//	g.log.Add(t)
+//}
 
 func (g *Game) TextSelect(t []string) {
 	log.Fatal("현재는 쓰지 않는 기능")
@@ -186,6 +188,7 @@ func (g *Game) LoadMap(info LocationInfo) {
 	g.cameraToCenter()
 
 	g.audio.Init()
+	g.player.currentLocationName = info.Name
 }
 
 func (g *Game) SetStatus(status int) {
@@ -202,11 +205,12 @@ func (g *Game) SetStatus(status int) {
 }
 func (g *Game) TalkEnd() {
 	if g.status == GAME_UPDATE_STATUS_MAP_INTERACTION {
-		g.log.AddWithPrompt("지금은 대화중이 아닙니다.")
+		g.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "지금은 대화중이 아닙니다.")
 		return
 	}
 
 	g.SetStatus(GAME_UPDATE_STATUS_MAP_INTERACTION)
-	g.log.AddWithPrompt("대화를 종료합니다.")
+	g.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "대화를 종료합니다.")
 	g.gameObjectManager.SetActiveObject(nil)
+	g.scriptManager.TalkEnd()
 }

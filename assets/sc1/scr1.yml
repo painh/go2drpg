@@ -1,15 +1,51 @@
 ---
-"test":
-  - person: true
-  - text: "안녕하세요."
-  - setStatus: 2
-  - addkeyword: "살해도구"
-  - playmusic: "../common/Abstraction - Three Red Hearts (Prepare to Dev)/Save the City.ogg"
+- "김규태":
+    - person: true
+    - nonexclusive: true
+    - invalidkeywordresponse: "WTF???"
 
-"test:살해도구:testflag":
-  - text: "난 그런거 모르는데?222"
-  - playmusic: "../common/Abstraction - Three Red Hearts (Prepare to Dev)/Modern Bits.ogg"
+- "김규태":
+    - condition:
+        - switch: testflag
+        - location: "공원"
+    - person: true
+    - text: |
+        공원에서 사건을 해결해 주십시오.
+- "김규태":
+      - condition:
+            - keyword: "김규태"
+      - text: |
+            저는 수사본부의 일원입니다.
+            신입이라 탐정님의 활약은 듣지 못했습니다.
+      - addlocation: "수사본부"
+- "김규태":
+    - condition:
+        - keyword: "살해도구"
+        - switch: testflag
+    - text: "난 그런거 모르는데?222"
+    - playmusic: "../common/Abstraction - Three Red Hearts (Prepare to Dev)/Modern Bits.ogg"
 
-"test:살해도구":
-  - text: "난 그런거 모르는데?"
-  - switchon: "testflag"
+- "김규태":
+    - condition:
+        - keyword: "살해도구"
+    - text: "난 그런거 모르는데?"
+    - switchOn: "testflag"
+
+- "김규태":
+    - text: |
+        <color=#ff00ff>탐정</color>님 안녕하십니까. 이른 아침부터 실례합니다.
+        저는 김규태라고 합니다.
+        얼마전 공원에서 시체가 발견된 것을 기억하실 겁니다.
+
+        공식적으로는 여전히 수사중입니다만, 현재 사건은 난항입니다.
+
+        이전에도 비슷한 일로 저희를 도와주신 적이 있다고 알고 있습니다.
+        저희 수사기관에서는 은퇴하셨지만 한번 더 부탁드립니다.
+
+        .크흠
+        2
+    - setStatus: 2
+    - playmusic: "../common/Abstraction - Three Red Hearts (Prepare to Dev)/Save the City.ogg"
+    - addkeyword: "살해도구"
+    - addperson: "김규태"
+    - addlocation: "공원"

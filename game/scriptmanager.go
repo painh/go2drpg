@@ -1,149 +1,54 @@
 package game
 
-import "strings"
-
-type ScriptActionInterface interface {
-	Run()
-}
-
-type ScriptActionSetGameStatus struct {
-	status int
-}
-
-func (s *ScriptActionSetGameStatus) Run() {
-	GameInstance.SetStatus(s.status)
-}
-
-type ScriptActionText struct {
-	text string
-}
-
-func (s *ScriptActionText) Run() {
-	GameInstance.log.Add(s.text)
-}
-
-type ScriptActionKeyword struct {
-	keyword string
-}
-
-func (s *ScriptActionKeyword) Run() {
-	GameInstance.keywordManager.Add(s.keyword)
-}
-
-type ScriptActionSetSwitch struct {
-	keyword string
-	flag    bool
-}
-
-func (s *ScriptActionSetSwitch) Run() {
-	GameInstance.gameSwitchManager.SetSwitch(s.keyword, s.flag)
-}
-
-type ScriptActionPlayMusic struct {
-	filename string
-}
-
-func (s *ScriptActionPlayMusic) Run() {
-	GameInstance.audio.Play(s.filename)
-}
-
-type SceneManager struct {
-	scenename string
-	scene     []ScriptActionInterface
-	cursor    int
-	isOver    bool
-	person    bool
-}
-
-func (s *SceneManager) Start() {
-	s.isOver = false
-	s.cursor = 0
-}
-
-func (s *SceneManager) Update() bool {
-	if s.isOver {
-		return false
-	}
-
-	currentScript := s.scene[s.cursor]
-	currentScript.Run()
-
-	s.cursor++
-	if s.cursor >= len(s.scene) {
-		s.isOver = true
-	}
-
-	return true
-
-}
+import "image/color"
 
 type ScriptManager struct {
-	scripts                []*SceneManager
-	activeScript           *SceneManager
-	activeScriptStack      []*SceneManager
-	lastObjectName         string
-	invalidKeywordResponse string
+	scenes            []*SceneManager
+	lastActiveScene   *SceneManager
+	activeScriptStack []*SceneManager
+	lastObjectName    string
 }
 
 func (s *ScriptManager) GetInvalidKeywordResponse() string {
-	if s.invalidKeywordResponse == "" {
+	if s.lastActiveScene == nil {
 		return "무슨 말인지 모르겠군요."
 	}
 
-	return s.invalidKeywordResponse
+	if s.lastActiveScene.invalidKeywordResponse == "" {
+		return "무슨 말인지 모르겠군요."
+	}
+
+	return s.lastActiveScene.invalidKeywordResponse
 }
 
 func (s *ScriptManager) Init() {
-	s.scripts = []*SceneManager{}
+	s.scenes = []*SceneManager{}
 	s.activeScriptStack = []*SceneManager{}
-	s.activeScript = nil
-	s.invalidKeywordResponse = ""
-	//
-	//// Test Code
-	//scr := &SceneManager{person: true}
-	//scr.scene = append(scr.scene, &ScriptActionText{text: "안녕하세요."})
-	//s.Add("test", scr)
-	//
-	//scr.scene = append(scr.scene, &ScriptActionSetGameStatus{status: 2})
-	//s.Add("test", scr)
-	//
-	//scr.scene = append(scr.scene, &ScriptActionKeyword{keyword: "살해도구"})
-	//s.Add("test", scr)
-	//
-	//scr.scene = append(scr.scene, &ScriptActionKeyWordReaction{keyword: "살해도구"})
-	//s.Add("test", scr)
-	//
-	//scr = &SceneManager{person: true}
-	//scr.scene = append(scr.scene, &ScriptActionText{text: "난 그런거 모르는데?222222"})
-	//s.Add("test:살해도구:testflag", scr)
-	//
-	//scr = &SceneManager{person: true}
-	//scr.scene = append(scr.scene, &ScriptActionText{text: "난 그런거 모르는데?"})
-	//s.Add("test:살해도구:", scr)
-	//
-	//scr.scene = append(scr.scene, &ScriptActionSetSwitch{"testflag", true})
-	//s.Add("test:살해도구:", scr)
-
+	s.lastActiveScene = nil
 }
 
 func (s *ScriptManager) Update() {
-	if s.activeScript == nil {
+	if s.lastActiveScene == nil {
 		return
 	}
 
-	if s.activeScript.Update() == false {
-		s.activeScript = s.PopScene()
+	if s.lastActiveScene.Update() == false {
+		scene := s.PopScene()
+
+		if scene != nil {
+			s.lastActiveScene = scene
+		}
 	}
 }
 
 //
 //func (s *ScriptManager) Add(scenename string, scr *SceneManager) {
-//	s.scripts[scenename] = scr
-//	s.scripts[scenename].scenename = scenename
+//	s.scenes[scenename] = scr
+//	s.scenes[scenename].scenename = scenename
 //}
 
 func (s *ScriptManager) FindScript(scenename string) *SceneManager {
-	for _, v := range s.scripts {
+	for _, v := range s.scenes {
 		if v.scenename == scenename {
 			return v
 		}
@@ -152,36 +57,55 @@ func (s *ScriptManager) FindScript(scenename string) *SceneManager {
 	return nil
 }
 
-func (s *ScriptManager) RunObjectScript(objName string) bool {
-	s.invalidKeywordResponse = ""
-
-	val := s.FindScript(objName)
-	if val == nil {
-		return false
+func (s *ScriptManager) FindAvailableKeywordScene(keyword string) bool {
+	for _, v := range s.scenes {
+		if v.FindAvailableKeywordScene(keyword) {
+			return true
+		}
 	}
 
-	s.lastObjectName = objName
-	s.ActiveScene(val)
+	return false
+}
 
-	if s.activeScript.person {
-		GameInstance.log.AddWithPrompt(objName, "(와)과 대화를 시작합니다.")
+func (s *ScriptManager) RunCurrentObject() bool {
+	return s.RunObjectScript(s.lastObjectName)
+}
+
+func (s *ScriptManager) RunObjectScript(objName string) bool {
+	//TODO : keyword 실행과 합쳐야함
+	for _, v := range s.scenes {
+		if objName == v.scenename {
+			if v.CheckCondition(GameInstance.keywordManager.activeKeyword) {
+				s.PushScene()
+				s.ActiveScene(v)
+
+				if s.lastActiveScene.person && s.lastObjectName == "" {
+					s.lastObjectName = objName
+					GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255},objName, "(와)과 대화를 시작합니다.\n")
+				}
+
+				if v.nonexclusive == false {
+					return true
+				}
+			}
+		}
 	}
 
 	return true
 }
 
 func (s *ScriptManager) ActiveScene(scene *SceneManager) bool {
-	s.activeScript = scene
-	s.activeScript.Start()
+	s.lastActiveScene = scene
+	s.lastActiveScene.Start()
 
 	return true
 }
 
 func (s *ScriptManager) PushScene() {
-	if s.activeScript == nil {
+	if s.lastActiveScene == nil {
 		return
 	}
-	s.activeScriptStack = append(s.activeScriptStack, s.activeScript)
+	s.activeScriptStack = append(s.activeScriptStack, s.lastActiveScene)
 }
 
 func (s *ScriptManager) PopScene() *SceneManager {
@@ -196,28 +120,29 @@ func (s *ScriptManager) PopScene() *SceneManager {
 	return ret
 }
 
-func (s *ScriptManager) RunKeywordScript(keyword string) bool {
-	for _, v := range s.scripts {
-		if strings.Index(v.scenename, s.lastObjectName+":"+keyword) == 0 {
-			slice := strings.Split(v.scenename, ":")
-			if len(slice) < 3 {
-				slice = append(slice, "")
-			}
-			switchname := slice[2]
-			if switchname != "" && !GameInstance.gameSwitchManager.CheckSwitch(switchname) {
-				continue
-			}
-
-			s.PushScene()
-			//전체 스위치를 뒤져서 스위치도 조건에 넣어야함
-			s.ActiveScene(v)
-
-			return true
-		}
-	}
-
-	return false
-}
+//
+//func (s *ScriptManager) RunKeywordScript(keyword string) bool {
+//	for _, v := range s.scenes {
+//		if strings.Index(v.scenename, s.lastObjectName+":"+keyword) == 0 {
+//			slice := strings.Split(v.scenename, ":")
+//			if len(slice) < 3 {
+//				slice = append(slice, "")
+//			}
+//			switchname := slice[2]
+//			if switchname != "" && !GameInstance.gameSwitchManager.CheckSwitch(switchname) {
+//				continue
+//			}
+//
+//			s.PushScene()
+//			//전체 스위치를 뒤져서 스위치도 조건에 넣어야함
+//			s.ActiveScene(v)
+//
+//			return true
+//		}
+//	}
+//
+//	return false
+//}
 
 func (s *ScriptManager) GetSceneManager(scenename string) *SceneManager {
 	v := s.FindScript(scenename)
@@ -226,6 +151,17 @@ func (s *ScriptManager) GetSceneManager(scenename string) *SceneManager {
 	}
 
 	v = &SceneManager{scenename: scenename}
-	s.scripts = append(s.scripts, v)
+	s.scenes = append(s.scenes, v)
 	return v
+}
+
+func (s *ScriptManager) NewSceneManager(scenename string) *SceneManager {
+	v := &SceneManager{scenename: scenename}
+	s.scenes = append(s.scenes, v)
+	return v
+}
+
+func (s *ScriptManager) TalkEnd() {
+	s.lastActiveScene = nil
+	s.lastObjectName = ""
 }

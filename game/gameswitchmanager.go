@@ -12,7 +12,7 @@ func (i *GameSwitchManager) SetSwitch(key string, flag bool) {
 	i.dict[key] = flag
 }
 
-func (i *GameSwitchManager) CheckSwitch(key string) bool {
-	_, ok := i.dict[key]
-	return ok
+func (i *GameSwitchManager) CheckSwitch(key string) (bool, bool) {
+	v, ok := i.dict[key]
+	return v, ok
 }

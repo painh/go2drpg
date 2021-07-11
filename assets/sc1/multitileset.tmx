@@ -37,13 +37,11 @@
  <objectgroup id="2" name="obj">
   <object id="7" gid="503" x="0" y="96" width="48" height="48"/>
   <object id="9" gid="486" x="96" y="96" width="48" height="48"/>
-  <object id="21" gid="449" x="438" y="577" width="48" height="48"/>
   <object id="22" x="0" y="0" width="480" height="48"/>
  </objectgroup>
  <objectgroup id="3" name="char">
-  <object id="13" name="Player" gid="705" x="48" y="96" width="48" height="96"/>
-  <object id="20" name="test" gid="711" x="96" y="192" width="48" height="96"/>
-  <object id="23" x="549" y="566"/>
+  <object id="13" name="Player" gid="705" x="192" y="384" width="48" height="96"/>
+  <object id="20" name="김규태" gid="711" x="288" y="336" width="48" height="96"/>
  </objectgroup>
  <objectgroup id="4" name="overchar">
   <object id="14" gid="487" x="0" y="48" width="48" height="48"/>

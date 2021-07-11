@@ -17,7 +17,7 @@ map_height: 600
 log_x: 400
 log_y: 0
 log_width: 400
-log_height: 530
+log_height: 550
 line_spacing: 5
 btn_person_x: 400
 btn_person_y: 570
@@ -58,6 +58,9 @@ location_list:
   - name: 공원
     display_name: 공원
     filename: park.tmx
+  - name: 수사본부
+    display_name: 수사본부
+    filename: policeoffice.tmx
 default_move_min: 1
 default_talk_min: 5
 default_location_min: 60
@@ -67,5 +70,5 @@ scripts:
   - scr1.yml
   - scr2.yml
 btn_click_sound: "../common/Groovy's Retro Sound Effects/Hit_Hurt/Hit_Hurt1.wav"
-default_bgm_volume: 0.3
+default_bgm_volume: 0.1
 default_sfx_volume: 0.3

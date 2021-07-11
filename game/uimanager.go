@@ -47,6 +47,18 @@ type UIManager struct {
 	Clicked bool
 }
 
+func KeyWordProcess(keyword string) {
+	GameInstance.player.AddTime(SettingConfigInstance.DefaultTalkMin)
+	if GameInstance.scriptManager.FindAvailableKeywordScene(keyword) {
+		GameInstance.keywordManager.ActiveKeyword(keyword)
+		if GameInstance.scriptManager.RunCurrentObject() == false {
+		}
+		GameInstance.keywordManager.ActiveKeyword("")
+	} else {
+		GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, GameInstance.scriptManager.GetInvalidKeywordResponse())
+	}
+}
+
 func (u *UIManager) Init() {
 	u.uiDict = map[string]*UIWidget{}
 
@@ -71,39 +83,94 @@ func (u *UIManager) Init() {
 
 	u.AddButton("person", float64(SettingConfigInstance.BtnPersonX), float64(SettingConfigInstance.BtnPersonY),
 		float64(SettingConfigInstance.BtnPersonWidth), float64(SettingConfigInstance.BtnPersonHeight), "인물 목록", func() {
-			GameInstance.log.AddWithPrompt("인물 목록")
+			GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "인물 목록")
+
+			if GameInstance.status == GAME_UPDATE_STATUS_TALK_CHAR {
+				GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "인물에 대해 대해 이야기 합니다.")
+
+				if len(GameInstance.player.activePerson) == 0 {
+					GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "활성 인물 없음")
+				}
+
+				var list = []TextSelectElement{}
+
+				for k := range GameInstance.player.activePerson {
+					list = append(list, TextSelectElement{key: k, displayString: k, info: k})
+				}
+				GameInstance.log.TextSelect(list, func(info interface{}) {
+					KeyWordProcess(info.(string))
+				})
+			} else {
+				GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "선택한 인물에 대한 정보를 확인합니다.")
+
+				if len(GameInstance.player.activePerson) == 0 {
+					GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "활성 인물 없음")
+				}
+
+				var list = []TextSelectElement{}
+
+				for k, _ := range GameInstance.player.activePerson {
+					list = append(list, TextSelectElement{key: k, displayString: k, info: k})
+				}
+				GameInstance.log.TextSelect(list, func(info interface{}) {
+					KeyWordProcess(info.(string))
+				})
+			}
+
 		}, color.RGBA{255, 255, 255, 255})
 
 	u.AddButton("place", float64(SettingConfigInstance.BtnLocationX), float64(SettingConfigInstance.BtnLocationY),
 		float64(SettingConfigInstance.BtnLocationWidth), float64(SettingConfigInstance.BtnLocationHeight), "장소 목록", func() {
-			GameInstance.log.Add("장소 목록 이동시간 : ", SettingConfigInstance.DefaultLocationMin)
+			if GameInstance.status == GAME_UPDATE_STATUS_TALK_CHAR {
+				GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "장소에 대해 이야기 합니다.")
 
-			if len(GameInstance.player.activeLocation) == 0 {
-				GameInstance.log.Add("활성 장소 없음")
-			}
+				if len(GameInstance.player.activeLocation) == 0 {
+					GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "활성 장소 없음")
+				}
 
-			var list = []TextSelectElement{}
+				var list = []TextSelectElement{}
 
-			for _, v := range GameInstance.player.activeLocation {
-				list = append(list, TextSelectElement{key: v.name, displayString: v.location.DisplayName, info: v})
-			}
-			GameInstance.log.TextSelect(list, func(info interface{}) {
-				v := info.(Location)
-				str := fmt.Sprintf("정말로 이동할까요? 이동에는 %v분이 소모됩니다.", SettingConfigInstance.DefaultLocationMin)
-				GameInstance.log.Confirm(str, func() {
-					GameInstance.log.AddWithPrompt("이동 ", v.location.DisplayName)
-					GameInstance.player.AddTime(20)
-					GameInstance.LoadMap(*v.location)
+				for k := range GameInstance.player.activeLocation {
+					list = append(list, TextSelectElement{key: k, displayString: k, info: k})
+				}
+				GameInstance.log.TextSelect(list, func(info interface{}) {
+					KeyWordProcess(info.(string))
 				})
-			})
+			} else {
+				GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "선택한 장소로 이동합니다.\n장소 목록 이동시간 : ", SettingConfigInstance.DefaultLocationMin)
+
+				if len(GameInstance.player.activeLocation) == 0 {
+					GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "활성 장소 없음")
+				}
+
+				var list = []TextSelectElement{}
+
+				for _, v := range GameInstance.player.activeLocation {
+					if v.name == GameInstance.player.currentLocationName {
+						continue
+					}
+					list = append(list, TextSelectElement{key: v.name, displayString: v.location.DisplayName, info: v})
+				}
+				GameInstance.log.TextSelect(list, func(info interface{}) {
+					v := info.(Location)
+					str := fmt.Sprintf("정말로 이동할까요? 이동에는 %v분이 소모됩니다.", SettingConfigInstance.DefaultLocationMin)
+					GameInstance.log.Confirm(str, func() {
+						GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "이동 ", v.location.DisplayName)
+						GameInstance.player.AddTime(20)
+						GameInstance.LoadMap(*v.location)
+					})
+				})
+
+			}
+
 		}, color.RGBA{255, 255, 255, 255})
 	u.AddButton("keyword", float64(SettingConfigInstance.BtnKeywordX), float64(SettingConfigInstance.BtnKeywordY),
 		float64(SettingConfigInstance.BtnKeywordWidth), float64(SettingConfigInstance.BtnKeywordHeight), "키워드", func() {
 
-			GameInstance.log.AddWithPrompt("키워드 목록")
+			GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255}, "키워드 목록")
 
 			if len(GameInstance.keywordManager.dict) == 0 {
-				GameInstance.log.Add("활성 키워드 없음")
+				GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "활성 키워드 없음")
 			}
 
 			var list = []TextSelectElement{}
@@ -112,10 +179,7 @@ func (u *UIManager) Init() {
 				list = append(list, TextSelectElement{key: k, displayString: k, info: k})
 			}
 			GameInstance.log.TextSelect(list, func(info interface{}) {
-				GameInstance.player.AddTime(SettingConfigInstance.DefaultTalkMin)
-				if GameInstance.scriptManager.RunKeywordScript(info.(string)) == false {
-					GameInstance.log.AddWithPrompt(GameInstance.scriptManager.GetInvalidKeywordResponse())
-				}
+				KeyWordProcess(info.(string))
 			})
 		}, color.RGBA{255, 255, 255, 255})
 	u.AddButton("talkend", float64(SettingConfigInstance.BtnTalkEndX), float64(SettingConfigInstance.BtnTalkEndY),
@@ -125,12 +189,12 @@ func (u *UIManager) Init() {
 
 	u.AddButton("devmode", 0, 20,
 		100, 20, "스위치상태", func() {
-			GameInstance.log.AddString("game switch")
+			GameInstance.log.AddString("game switch", color.RGBA{255, 255, 255, 255})
 			if len(GameInstance.gameSwitchManager.dict) == 0 {
-				GameInstance.log.Add("활성 스위치 없음")
+				GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, "활성 스위치 없음")
 			}
 			for k, v := range GameInstance.gameSwitchManager.dict {
-				GameInstance.log.Add(k, " : ", v)
+				GameInstance.log.Add(color.RGBA{0, 255, 0, 255}, k, " : ", v)
 			}
 		}, color.RGBA{0, 255, 0, 255})
 }

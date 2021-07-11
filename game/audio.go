@@ -108,12 +108,13 @@ func (p *AudioPlayer) update() error {
 }
 
 type AudioManager struct {
-	audioContext  *audio.Context
-	audioPlayer   *AudioPlayer
-	musicPlayerCh chan *AudioPlayer
-	errCh         chan error
-	playNum       int
-	seDict        map[string][]byte
+	audioContext              *audio.Context
+	audioPlayer               *AudioPlayer
+	musicPlayerCh             chan *AudioPlayer
+	errCh                     chan error
+	playNum                   int
+	seDict                    map[string][]byte
+	lastPlayLoopMusicFilename string
 }
 
 func (m *AudioManager) Init() {
@@ -130,7 +131,13 @@ func (m *AudioManager) Init() {
 	//m.errCh = make(chan error)
 }
 
-func (m *AudioManager) Play(filename string) {
+func (m *AudioManager) PlayLoopMusic(filename string) {
+	if filename == m.lastPlayLoopMusicFilename {
+		return
+	}
+
+	m.lastPlayLoopMusicFilename = filename
+
 	if m.audioPlayer != nil {
 		m.audioPlayer.Close()
 	}

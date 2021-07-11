@@ -3,6 +3,7 @@ package game
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/painh/go2drpg/assetmanager"
+	"image/color"
 	"sort"
 )
 
@@ -103,9 +104,9 @@ func (g *gameObjectManager) Update(x, y int) {
 			}
 
 			//GameInstance.cameraToCenter()
-			//scripts.StartEvent("slime")
+			//scenes.StartEvent("slime")
 		} else {
-			GameInstance.log.AddWithPrompt("그곳으로 이동 할 수 없습니다.")
+			GameInstance.log.AddWithPrompt(color.RGBA{0, 255, 0, 255},"그곳으로 이동 할 수 없습니다.")
 		}
 	}
 
